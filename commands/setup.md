@@ -7,7 +7,7 @@ Enable the tokenwatch statusline by setting `statusLine` in `~/.claude/settings.
 to exactly:
 
 ```json
-{ "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/statusline.py\"", "refreshInterval": 15 }
+{ "type": "command", "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/statusline.py\"", "refreshInterval": 2 }
 ```
 
 Resolve `${CLAUDE_PLUGIN_ROOT}` to its absolute path first (this plugin's install
