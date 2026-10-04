@@ -166,6 +166,22 @@ costs ~60 ms even on huge sessions.
 One line on purpose — advice about token waste shouldn't waste tokens. It carries the
 top suggestion; the full list is in the CLI report.
 
+### Live pet (second terminal)
+
+The statusline can only refresh about once a second, so Purr can't truly animate there. `pet.py` is a
+long-running companion: run it in a second terminal pane or tab and Purr patrols the whole width at ~8 fps,
+with the same moods and numbers as the statusline (calm stroll, brisk warming, flaming sprint when it's
+burning money, steaming when the context is huge, curled up with floating z's when idle).
+
+```
+python3 /path/to/tokenwatch/pet.py [--project NAME] [--fps N]
+python3 /path/to/tokenwatch/pet.py --demo      # cycles all five moods, no session needed
+```
+
+It follows your newest transcript (and switches when a newer one appears), redraws a 4-line block in
+place, and restores your cursor on Ctrl-C. Honours `NO_COLOR` and `TOKENWATCH_COLOR=0`. In a plugin
+install, `/tokenwatch:pet` prints the exact command to paste.
+
 ## Requirements
 
 - Claude Code with local transcripts (the default)

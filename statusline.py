@@ -3,7 +3,7 @@
 Reads the statusline JSON on stdin, incrementally tails the transcript (state
 cached in /tmp so each refresh only parses new lines). All local, no network."""
 import json, os, sys, hashlib, time, shutil
-from tokenwatch import KINDS, fmt, money, cost_of, new_usage, context_of, top_tip, plugin_hook
+from tokenwatch import fmt, money, top_tip, new_live_state, ingest, update_rate, mood_of
 
 try: sys.stdout.reconfigure(errors="replace")
 except Exception: pass
@@ -54,8 +54,7 @@ if not tp or not os.path.exists(tp):
     sys.exit(0)
 
 state_file = os.path.join("/tmp", "tokenwatch-" + hashlib.md5(tp.encode()).hexdigest()[:12] + ".json")
-state = {"v": 3, "offset": 0, "sums": {k: 0 for k in KINDS}, "cost": 0.0, "turns": 0,
-         "hook_runs": 0, "seen": [], "context": 0, "model": "", "t_last": 0.0, "t_active": 0.0, "prev_cost": 0.0, "rate": 0.0}
+state = new_live_state()
 try:
     old = json.load(open(state_file))
     if old.get("v") == 3 and old.get("offset", 0) <= os.path.getsize(tp): state.update(old)
@@ -64,27 +63,8 @@ except Exception:
 
 with open(tp, errors="ignore") as f:
     f.seek(state["offset"])
-    for line in f:
-        h = plugin_hook(line)
-        if h: state["hook_runs"] += h[0]; continue
-        if '"usage"' not in line: continue
-        try: msg = json.loads(line).get("message") or {}
-        except Exception: continue
-        u = new_usage(msg, state["seen"])
-        if not u: continue
-        state["turns"] += 1
-        state["cost"] += cost_of(msg.get("model"), u)
-        state["context"] = context_of(u)
-        if (msg.get("model") or "").startswith("claude"): state["model"] = msg["model"]
-        for k in KINDS: state["sums"][k] += u.get(k, 0)
-    state["offset"] = f.tell()
-dt = now - (state["t_last"] or now); dc = state["cost"] - state["prev_cost"]
-if dc > 0: state["t_active"] = now
-inst = dc / dt * 60 if dt > 0 else 0.0  # $/min
-if dt > 600 or state["t_last"] == 0: state["rate"] = inst
-elif dt > 0: state["rate"] += min(1.0, dt / 120) * (inst - state["rate"])
-state["t_last"], state["prev_cost"] = now, state["cost"]
-idle = max(0.0, now - (state["t_active"] or now))
+    ingest(state, f)
+idle = update_rate(state, now)
 try: json.dump(state, open(state_file, "w"))
 except Exception: pass
 
@@ -93,14 +73,7 @@ tip = top_tip(state["cost"], state["turns"], state["hook_runs"], state["context"
 if tip: parts.append(f"{E('🙀', '!')} {tip}")
 print(f" {DOT} ".join(parts))
 
-ctx, rate, turns = state["context"], state["rate"], state["turns"]
-if ctx > 200_000 or tip:
-    mood, hot = HOT, True
-    speech = f"{fmt(ctx)} to re-read: /compact" if ctx > 200_000 else "hot paws, see tip above"
-elif turns == 0 or idle > 300:
-    mood, hot = SLEEPY, False
-    speech = "waiting for a chat" if turns == 0 else f"napping {DOT} idle {int(idle // 60)}m"
-elif rate >= 0.50: mood, hot, speech = FIRE, False, f"zoomies! {money(rate)}/min"
-elif rate >= 0.10 or ctx >= 100_000: mood, hot, speech = WARMING, False, f"warming up {DOT} {money(rate)}/min"
-else: mood, hot, speech = CALM, False, f"purring along {DOT} {money(rate)}/min"
+mname, speech, _ = mood_of(state, idle, DOT)
+mood, hot = {"HOT": (HOT, True), "SLEEPY": (SLEEPY, False), "FIRE": (FIRE, False),
+             "WARMING": (WARMING, False), "CALM": (CALM, False)}[mname]
 if cols >= 24: print(purr(mood, tick, speech, cols, hot))
