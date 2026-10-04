@@ -63,6 +63,19 @@ The data is the transcripts Claude Code already saves at
 machine. It's a few hundred lines of dependency-free Python you can read in
 one sitting.
 
+## Install as a plugin
+
+```
+/plugin marketplace add logrelu/tokenwatch
+/plugin install tokenwatch@tokenwatch
+/tokenwatch:setup      # turns on the live statusline
+```
+
+This gives you the session greeting automatically, `/tokenwatch:report [--project NAME]`
+for the full report, and `/tokenwatch:setup` for the statusline (plugins can't enable
+a statusline on their own, so setup writes it to `~/.claude/settings.json`; re-run it
+after a plugin update). The manual setup below still works if you'd rather not use the plugin.
+
 ## The three surfaces
 
 ### 1. CLI report

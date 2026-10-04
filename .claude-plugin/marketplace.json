@@ -1,0 +1,14 @@
+{
+  "name": "tokenwatch",
+  "owner": {
+    "name": "logrelu"
+  },
+  "plugins": [
+    {
+      "name": "tokenwatch",
+      "source": "./",
+      "description": "See where your Claude Code tokens go: dollar cost, tokens burnt and plain-English suggestions per session."
+    }
+  ],
+  "description": "Cost and token-waste insights for Claude Code"
+}
