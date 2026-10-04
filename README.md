@@ -114,8 +114,21 @@ spotting waste, not an invoice.
 ### 2. Statusline — live burn meter inside Claude Code
 
 ```
-🤖 ≈$12 · 🔥 8M tokens burnt · 120 turns · 💡 this chat re-reads 210K tokens of history on every step: /compact, or /clear for a new task
+🤖 ≈$12 · 🔥 8M tokens burnt · 120 turns
+        ~(=^.^=)    purring along · $0.04/min
 ```
+
+Line 2 is Purr, a cat that patrols the line and reacts to how fast you are
+spending. First match wins:
+
+- `(=@_@=)$` overheated: context over 200K or a tip is showing (the tip appears on line 1 with 🙀)
+- `(=-.-=)zZ` sleepy: no turns yet, or no spend for 5 minutes
+- `~(=>.<=)*` on fire: burning $0.50/min or more, runs fast
+- `~(=^.^;)` warming up: $0.10/min or more, or context past 100K
+- `~(=^.^=)` calm: everything else
+
+Set `"refreshInterval": 2` so the cat animates. It adapts to narrow terminals,
+honours `NO_COLOR`, and `TOKENWATCH_COLOR=0` turns its colour off.
 
 Add to `~/.claude/settings.json` (replace the path with wherever you cloned this):
 
@@ -124,7 +137,7 @@ Add to `~/.claude/settings.json` (replace the path with wherever you cloned this
   "statusLine": {
     "type": "command",
     "command": "python3 /path/to/tokenwatch/statusline.py",
-    "refreshInterval": 15
+    "refreshInterval": 2
   }
 }
 ```
