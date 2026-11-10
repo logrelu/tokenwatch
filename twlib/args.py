@@ -5,7 +5,7 @@ import difflib, sys
 FLAGS = {
     "--project": True, "--sessions": True, "--since": True, "--until": True,
     "--budget": True, "--period": True, "--export": True, "--theme": True,
-    "--json": False, "--open": False, "--today": False, "--week": False, "--daily": False,
+    "--json": False, "--open": False, "--save": False, "--today": False, "--week": False, "--daily": False,
     "--help": False, "-h": False,
 }
 
@@ -18,7 +18,9 @@ usage: python3 tokenwatch.py [options]
   --today | --week          only today / the last 7 days
   --since DATE [--until DATE]   a date window (YYYY-MM-DD, by session start day)
   --daily                   per-day cost table with a sparkline
-  --budget N [--period day|week|month]   spending budget (or TOKENWATCH_BUDGET=N/period)
+  --budget N [--period day|week|month]   spending budget (also N/period; or TOKENWATCH_BUDGET=N/period)
+  --save                    remember --budget and --theme for next time (--budget off forgets);
+                            alone, shows what is saved
   --json                    machine-readable output
   --open                    build the HTML dashboard and open it in your browser
   --export html [PATH]      write a self-contained HTML dashboard (add --open to also open it)
