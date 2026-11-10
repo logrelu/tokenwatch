@@ -52,8 +52,15 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 python3 tokenwatch.py [--project NAME] [--sessions N]
 python3 statusline.py < statusline-input.json
 python3 pet.py --demo
-python3 -m unittest discover -s tests -v   # run the tests
+python3 -m unittest discover -s tests -v   # run all tests
+python3 -m unittest tests.test_budget      # run one module's tests
 ```
+
+## Tests
+
+One file per `twlib` module in `tests/` (`test_scan.py`, `test_budget.py`, ...). Shared helpers live in
+`tests/helpers.py`: `reply`/`write_session` build synthetic transcripts, and the `CliRunner` mixin runs the
+CLI against a temp folder. Tests must never read real transcripts: always go through `helpers`.
 
 ## Commits and PRs
 
