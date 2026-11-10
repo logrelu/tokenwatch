@@ -1,4 +1,4 @@
-"""Every test runs with tokenwatch's own files pointed at a throwaway folder, so a budget or theme you saved
+"""Every test runs with tokenwatch's own files pointed at a throwaway folder, so a budget, theme or recap state saved
 on this machine (~/.config/tokenwatch) can never change a result, and no test can overwrite it."""
 import atexit, os, shutil, sys, tempfile
 
@@ -8,4 +8,5 @@ from twlib import config
 _SANDBOX = tempfile.mkdtemp(prefix="tokenwatch-tests-")
 atexit.register(shutil.rmtree, _SANDBOX, True)
 config.PREFS = os.path.join(_SANDBOX, "prefs", "config.json")
+config.STATE = os.path.join(_SANDBOX, "state", "recap.json")
 os.environ.pop("TOKENWATCH_BUDGET", None)

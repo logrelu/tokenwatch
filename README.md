@@ -348,6 +348,7 @@ before: what it cost, how many sessions, the priciest project and how it compare
 
 <!-- demo:recap -->
 ```
+📅 tokenwatch: last week (28 Sep – 4 Oct): ≈$15.93 over 3 sessions · priciest: ~/Desktop/myapp ($15.57)
 ```
 <!-- /demo:recap -->
 
