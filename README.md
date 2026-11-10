@@ -73,12 +73,26 @@ one sitting.
 /tokenwatch:setup      # turns on the live statusline
 ```
 
-This gives you the session greeting automatically, `/tokenwatch:report [--project NAME]`
+This gives you the session greeting automatically, `/tokenwatch:today` and `/tokenwatch:week` for a
+quick look, `/tokenwatch:report [--project NAME]`
 for the full report, `/tokenwatch:dashboard` to open the dashboard in your browser,
 `/tokenwatch:budget 25/week` to save a budget, and
 `/tokenwatch:setup` for the statusline (plugins can't enable
 a statusline on their own, so setup writes it to `~/.claude/settings.json`). Run setup once: the
 statusline it writes always starts the newest installed tokenwatch, so it keeps working after updates. The manual setup below still works if you'd rather not use the plugin.
+
+### Just ask
+
+You don't need to remember any command. With the plugin installed, ask Claude Code in your own words
+and it runs tokenwatch for you, then answers in a few plain sentences with the numbers behind them:
+
+- *How much did I spend this week?*
+- *Why was today so expensive?*
+- *Which project costs me the most?* / *What was my priciest session?*
+- *Am I on track with my budget?* / *How can I use fewer tokens?*
+
+This is the `tokenwatch` skill: it only reads your local transcripts, like every other part of tokenwatch.
+It covers Claude Code only (the terminal, the IDE and the Desktop app's Code tab), not claude.ai chats.
 
 ### Updating
 

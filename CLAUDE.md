@@ -39,7 +39,8 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `statusline.py` | Claude Code statusline. Tails the transcript incrementally; state cached in `/tmp/tokenwatch-*.json`. |
 | `sessionstart.py` | SessionStart hook: one line about the previous session. |
 | `pet.py` | Long-running animated cat for a second terminal. |
-| `commands/*.md` | Plugin slash commands (`report`, `dashboard`, `budget`, `setup`, `pet`). Commands that run a script use a `` !`...` `` line and repeat the command in plain text, because some apps (Claude Desktop) don't run that line. |
+| `skills/tokenwatch/SKILL.md` | The plain-English skill: maps a question ("why was today expensive?") to CLI flags, runs `--json`, answers briefly. Every flag it mentions must exist in `args.FLAGS` (a test checks). |
+| `commands/*.md` | Plugin slash commands (`report`, `today`, `week`, `dashboard`, `budget`, `setup`, `pet`). Commands that run a script use a `` !`...` `` line and repeat the command in plain text, because some apps (Claude Desktop) don't run that line. |
 | `hooks/hooks.json` | Registers the SessionStart hook for plugin installs. |
 | `.claude-plugin/` | Plugin and marketplace manifests. Bump `version` in `plugin.json` on user-visible changes. |
 
