@@ -19,17 +19,12 @@ open_browser = webbrowser.open
 
 
 def private_out_dir():
-    """config.OUT_DIR, created readable only by you. Refuses a folder someone else owns (shared /tmp)."""
-    d = config.OUT_DIR
-    try:
-        os.makedirs(d, mode=0o700, exist_ok=True)
-        st = os.lstat(d)
+    """config.private_dir(), or exit with a message (symlink, someone else's folder, can't create)."""
+    try: return config.private_dir()
+    except PermissionError:
+        sys.exit(f"tokenwatch: {config.OUT_DIR} is not a folder you own; pass --export html PATH instead")
     except OSError as e:
-        sys.exit(f"tokenwatch: cannot create {d}: {e.strerror}; pass --export html PATH instead")
-    if os.path.islink(d) or (hasattr(os, "getuid") and st.st_uid != os.getuid()):
-        sys.exit(f"tokenwatch: {d} is not a folder you own; pass --export html PATH instead")
-    os.chmod(d, 0o700)
-    return d
+        sys.exit(f"tokenwatch: cannot create {config.OUT_DIR}: {e.strerror}; pass --export html PATH instead")
 
 
 def export(frag, since, until):
