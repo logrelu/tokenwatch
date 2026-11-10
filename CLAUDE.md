@@ -15,7 +15,20 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 
 | File | Role |
 |---|---|
-| `tokenwatch.py` | Core: `PRICES`, `scan_session`, `session_tips`, `scan_project`, `advise`, CLI `main()`. The other scripts import from here. |
+| `tokenwatch.py` | Thin entry point and compatibility shim. Re-exports every `twlib` name so `from tokenwatch import ...` keeps working. |
+| `twlib/fmt.py` | `fmt`, `money`, `nice`, `when` formatting helpers. |
+| `twlib/pricing.py` | `KINDS`, `PRICES`, `cost_parts`, `cost_of`. Update `PRICES` when prices change. |
+| `twlib/usage.py` | `new_usage`, `context_of`, `plugin_hook`: reading one transcript line. |
+| `twlib/tips.py` | `top_tip`, `session_tips`, `advise`: the plain-English suggestions. |
+| `twlib/live.py` | Live-session state shared by `statusline.py` and `pet.py`. |
+| `twlib/config.py` | `HOME`, `PROJECTS`. Read as `config.PROJECTS` so tests can redirect it. |
+| `twlib/dates.py` | `session_date`, `date_range`, `period_range`. |
+| `twlib/scan.py` | `scan_session`, `scan_project`, `project_name`: transcripts to numbers. |
+| `twlib/budget.py` | Budget parsing, status and the printed line. |
+| `twlib/trend.py` | Daily totals, sparkline, trend table. |
+| `twlib/report.py` | JSON-serialisable session/project summaries. |
+| `twlib/cli.py` | Argument parsing and report printing (`main`). |
+| `twlib/dashboard.py` | `--export html`: `collect()` (data dict) and `render_html()` (inline CSS/SVG page, tooltip-only script). Escape every data string with `esc()`. |
 | `statusline.py` | Claude Code statusline. Tails the transcript incrementally; state cached in `/tmp/tokenwatch-*.json`. |
 | `sessionstart.py` | SessionStart hook: one line about the previous session. |
 | `pet.py` | Long-running animated cat for a second terminal. |
@@ -30,8 +43,8 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 - Costs are estimates at public list prices (`PRICES`, matched by prefix, most specific first).
   Unknown models cost 0. Update `PRICES` when prices change.
 - Cache writes are 1.25x input price (5-minute cache) or 2x (1-hour cache).
-- `statusline.py` and `pet.py` import `tokenwatch`, so keep its import free of side effects
-  (`main()` only runs under `__main__`).
+- `statusline.py`, `pet.py` and `sessionstart.py` import from `tokenwatch`/`twlib`, so keep imports free of side
+  effects (`main()` only runs under `__main__`). Tests redirect transcripts with `twlib.config.PROJECTS`, never the real folder. `twlib` modules must not import `tokenwatch` (no cycles).
 
 ## Running
 
@@ -39,8 +52,15 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 python3 tokenwatch.py [--project NAME] [--sessions N]
 python3 statusline.py < statusline-input.json
 python3 pet.py --demo
-python3 -m unittest discover -s tests -v   # run the tests
+python3 -m unittest discover -s tests -v   # run all tests
+python3 -m unittest tests.test_budget      # run one module's tests
 ```
+
+## Tests
+
+One file per `twlib` module in `tests/` (`test_scan.py`, `test_budget.py`, ...). Shared helpers live in
+`tests/helpers.py`: `reply`/`write_session` build synthetic transcripts, and the `CliRunner` mixin runs the
+CLI against a temp folder. Tests must never read real transcripts: always go through `helpers`.
 
 ## Commits and PRs
 

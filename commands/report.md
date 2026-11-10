@@ -1,6 +1,6 @@
 ---
 description: Full tokenwatch report (cost, tokens burnt, suggestions) for all projects or one
-argument-hint: "[--project NAME]"
+argument-hint: "[--project NAME] [--week | --today | --since YYYY-MM-DD] [--daily] [--budget N --period day|week|month] [--json] [--export html PATH]"
 allowed-tools: Bash(python3:*)
 ---
 
