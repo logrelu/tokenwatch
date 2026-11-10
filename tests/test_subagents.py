@@ -9,7 +9,7 @@ from twlib import config
 from twlib.budget import _changed_since, spend_between
 from twlib.scan import last_modified, scan_project, scan_session, subagent_files
 
-OPUS, HAIKU = "claude-opus-5-5", "claude-haiku-4-5"
+OPUS, HAIKU = "claude-opus-5-5", "claude-haiku-5-5"
 DAY = "2026-10-01T10:%02d:00Z"
 
 
