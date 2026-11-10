@@ -39,6 +39,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 python3 tokenwatch.py [--project NAME] [--sessions N]
 python3 statusline.py < statusline-input.json
 python3 pet.py --demo
+python3 -m unittest discover -s tests -v   # run the tests
 ```
 
 ## Commits and PRs
