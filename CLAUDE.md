@@ -21,7 +21,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/usage.py` | `new_usage`, `context_of`, `plugin_hook`: reading one transcript line. |
 | `twlib/tips.py` | `top_tip`, `session_tips`, `advise`: the plain-English suggestions. |
 | `twlib/live.py` | Live-session state shared by `statusline.py` and `pet.py`. |
-| `twlib/config.py` | `HOME`, `PROJECTS`, `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
+| `twlib/config.py` | `HOME`, `PROJECTS`, `SETTINGS` (read-only), `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
 | `twlib/dates.py` | `session_date`, `date_range`, `period_range`. |
 | `twlib/scan.py` | `scan_session`, `scan_project`, `project_name`: transcripts to numbers. |
 | `twlib/budget.py` | Budget parsing, status and the printed line. |
