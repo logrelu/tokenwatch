@@ -2,6 +2,7 @@
 description: tokenwatch for today: cost, tokens burnt and the top suggestions
 argument-hint: "[--project NAME]"
 allowed-tools: Bash(python3:*)
+disable-model-invocation: true
 ---
 
 Run this and show the output exactly as printed, without summarizing or adding commentary:

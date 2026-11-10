@@ -37,6 +37,11 @@ class Commands(unittest.TestCase):
             for flag in re.findall(r"(?<![\w-])--[a-z][a-z-]*", read(path)):
                 self.assertIn(flag, args.FLAGS, f"{os.path.basename(path)} uses unknown {flag}")
 
+    def test_quick_commands_leave_questions_to_the_skill(self):
+        # "how much did I spend today?" should get the skill's plain-English answer, not a raw report
+        for name in ("today", "week"):
+            self.assertEqual(frontmatter(read(os.path.join(ROOT, "commands", name + ".md"))).get("disable-model-invocation"), "true")
+
     def test_today_and_week(self):
         self.assertIn('tokenwatch.py" --today', read(os.path.join(ROOT, "commands", "today.md")))
         self.assertIn('tokenwatch.py" --week', read(os.path.join(ROOT, "commands", "week.md")))
