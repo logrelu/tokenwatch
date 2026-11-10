@@ -95,10 +95,11 @@ def build(root):
 def run(*args):
     """Run the real CLI against the fake projects and return its stdout."""
     root = tempfile.mkdtemp()
-    saved = (config.PROJECTS, scan.HOME, cli.period_range, sys.argv)
+    saved = (config.PROJECTS, scan.HOME, cli.period_range, sys.argv, config.PREFS, os.environ.pop("TOKENWATCH_BUDGET", None))
     try:
         build(root)
         config.PROJECTS, scan.HOME = root, "/Users/demo"
+        config.PREFS = os.path.join(root, "no-saved-settings.json")   # your saved budget/theme never leak in
         cli.period_range = lambda period, today=None: (date(2026, 10, 1), date(2026, 10, 7))
         sys.argv = ["tokenwatch.py", *args]
         buf = io.StringIO()
@@ -106,7 +107,8 @@ def run(*args):
             tw.main()
         return buf.getvalue()
     finally:
-        config.PROJECTS, scan.HOME, cli.period_range, sys.argv = saved
+        config.PROJECTS, scan.HOME, cli.period_range, sys.argv, config.PREFS, env = saved
+        if env is not None: os.environ["TOKENWATCH_BUDGET"] = env
         shutil.rmtree(root)
 
 
