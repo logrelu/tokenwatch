@@ -76,7 +76,8 @@ def save_settings():
         else:
             try: changes["budget"] = budget_text(*parse_budget(sys.argv, env={}, saved={}))
             except (ValueError, IndexError):
-                sys.exit("tokenwatch: --budget needs a positive amount (e.g. --budget 25/week, or --budget off)")
+                sys.exit("tokenwatch: --budget needs a positive amount and a period of day, week or month "
+                         "(e.g. --budget 25/week, or --budget off)")
     if "--theme" in sys.argv:
         theme = arg("--theme")
         if theme not in dashboard.THEMES:

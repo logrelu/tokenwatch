@@ -106,6 +106,11 @@ class SaveFlag(PrefsCase, CliRunner):
                 self.run_cli(*argv)
         self.assertFalse(os.path.exists(config.PREFS))
 
+    def test_bad_period_says_period(self):
+        with self.assertRaises(SystemExit) as e:
+            self.run_cli("--budget", "2", "--period", "dya", "--save")
+        self.assertIn("day, week or month", str(e.exception.code))
+
     def test_report_shows_saved_budget(self):
         self.assertNotIn("💰", self.run_cli())
         prefs.save({"budget": "100/week"})
