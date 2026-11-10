@@ -23,7 +23,7 @@ from twlib import cli, config, dashboard, recap, scan
 README = os.path.join(ROOT, "README.md")
 SAMPLE = os.path.join(ROOT, "examples", "dashboard-sample.html")
 WEATHER = os.path.join(ROOT, "examples", "dashboard-sample-weather.html")
-OPUS, SONNET = "claude-opus-5-5", "claude-sonnet-5-5"
+OPUS, SONNET, HAIKU = "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"
 BLOCKS = ("session", "report", "daily", "budget", "recap")
 
 
@@ -73,6 +73,15 @@ def short_session():
     return out
 
 
+def short_agent():
+    """2 Oct: a Haiku helper the short session started to search the code (saved in short/subagents/)."""
+    out, t = [], datetime(2026, 10, 2, 9, 40, tzinfo=timezone.utc)
+    for i in range(8):
+        t += timedelta(minutes=1)
+        out.append(_turn(f"s{i}", t, HAIKU, 4, 900, 3_000, 9_000 + i * 3_000))
+    return out
+
+
 def lean_session():
     """3 Oct: a small, healthy Sonnet session in another project."""
     out, t = [], datetime(2026, 10, 3, 14, 0, tzinfo=timezone.utc)
@@ -90,6 +99,10 @@ def build(root):
         for name, lines in sessions.items():
             with open(os.path.join(root, proj, name + ".jsonl"), "w") as fh:
                 fh.write("\n".join(json.dumps(d) for d in lines) + "\n")
+    sub = os.path.join(root, "-Users-demo-Desktop-myapp", "short", "subagents")
+    os.makedirs(sub)
+    with open(os.path.join(sub, "agent-demo1.jsonl"), "w") as fh:
+        fh.write("\n".join(json.dumps(dict(d, isSidechain=True)) for d in short_agent()) + "\n")
 
 
 def run(*args):
