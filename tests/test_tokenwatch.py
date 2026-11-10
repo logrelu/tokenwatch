@@ -2,6 +2,7 @@ import contextlib, io, json, os, shutil, sys, tempfile, unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import tokenwatch as tw
+from twlib import config
 
 
 def reply(mid, model="claude-sonnet-5-5", ts="2026-10-01T10:00:00Z", **usage):
@@ -111,14 +112,14 @@ class JsonOutput(unittest.TestCase):
         os.makedirs(pdir)
         with open(os.path.join(pdir, "s1.jsonl"), "w") as fh:
             fh.write(json.dumps(reply("a", output_tokens=1000)) + "\n")
-        old_projects, old_argv = tw.PROJECTS, sys.argv
-        tw.PROJECTS, sys.argv = root, ["tokenwatch.py", *args]
+        old_projects, old_argv = config.PROJECTS, sys.argv
+        config.PROJECTS, sys.argv = root, ["tokenwatch.py", *args]
         out = io.StringIO()
         try:
             with contextlib.redirect_stdout(out):
                 tw.main()
         finally:
-            tw.PROJECTS, sys.argv = old_projects, old_argv
+            config.PROJECTS, sys.argv = old_projects, old_argv
         return out.getvalue()
 
     def test_json_is_valid_and_complete(self):
