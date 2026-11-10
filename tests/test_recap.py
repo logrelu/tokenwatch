@@ -77,7 +77,7 @@ class Once(LiveCase):
         import subprocess
         home = os.path.join(self.tmp, "home")
         write_reply(os.path.join(home, ".claude", "projects"), "-Users-me-app", "s1", date.today() - timedelta(days=7), 1_000_000)
-        env = {k: v for k, v in os.environ.items() if k not in ("TOKENWATCH_BUDGET", "XDG_CONFIG_HOME", "XDG_STATE_HOME", "CLAUDE_CONFIG_DIR")}
+        env = {k: v for k, v in os.environ.items() if k not in ("TOKENWATCH_BUDGET", "XDG_CONFIG_HOME", "XDG_STATE_HOME", "XDG_CACHE_HOME", "CLAUDE_CONFIG_DIR")}
         env.update(HOME=home, TMPDIR=self.tmp, PYTHONIOENCODING="utf-8")
         run = lambda: subprocess.run([sys.executable, os.path.join(ROOT, "sessionstart.py")], input="{}",
                                      capture_output=True, text=True, env=env, timeout=30).stdout
