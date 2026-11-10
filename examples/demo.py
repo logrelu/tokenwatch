@@ -6,7 +6,8 @@ machine. Output is deterministic (UTC, fixed dates), so it can be checked in CI.
 
     python3 examples/demo.py                 # print every example block
     python3 examples/demo.py --update-readme # rewrite the <!-- demo:NAME --> blocks in README.md
-    python3 examples/demo.py --check         # exit 1 if README.md is out of date
+    python3 examples/demo.py --dashboard     # rewrite examples/dashboard-sample.html
+    python3 examples/demo.py --check         # exit 1 if README.md or the sample dashboard is out of date
 """
 import contextlib, io, json, os, re, shutil, sys, tempfile, time
 from datetime import date, datetime, timedelta, timezone
@@ -17,9 +18,10 @@ os.environ["TZ"] = "UTC"
 time.tzset()
 
 import tokenwatch as tw
-from twlib import cli, config, scan
+from twlib import cli, config, dashboard, scan
 
 README = os.path.join(ROOT, "README.md")
+SAMPLE = os.path.join(ROOT, "examples", "dashboard-sample.html")
 OPUS, SONNET = "claude-opus-5-5", "claude-sonnet-5-5"
 BLOCKS = ("session", "report", "daily", "budget")
 
@@ -107,6 +109,20 @@ def run(*args):
         shutil.rmtree(root)
 
 
+def dashboard_html():
+    """The dashboard for the fake projects: a fixed week, a $25 weekly budget, and a fixed 'today'."""
+    root = tempfile.mkdtemp()
+    saved = (config.PROJECTS, scan.HOME)
+    try:
+        build(root)
+        config.PROJECTS, scan.HOME = root, "/Users/demo"
+        data = dashboard.collect(None, date(2026, 10, 1), date(2026, 10, 7), (25.0, "week"), today=date(2026, 10, 7))
+        return dashboard.render_html(data)
+    finally:
+        config.PROJECTS, scan.HOME = saved
+        shutil.rmtree(root)
+
+
 def blocks():
     report = run("--project", "myapp").strip("\n")
     session, grab = [], False
@@ -131,14 +147,23 @@ def render(text, data):
 
 
 if __name__ == "__main__":
+    if "--dashboard" in sys.argv:
+        with open(SAMPLE, "w", encoding="utf-8") as fh:
+            fh.write(dashboard_html())
+        print("examples/dashboard-sample.html written (made-up data)")
+        sys.exit(0)
     data = blocks()
     if "--update-readme" in sys.argv or "--check" in sys.argv:
         old = open(README).read()
         new = render(old, data)
         if "--check" in sys.argv:
+            try: sample_ok = open(SAMPLE, encoding="utf-8").read() == dashboard_html()
+            except OSError: sample_ok = False
             if new != old:
                 sys.exit("README.md examples are out of date: run python3 examples/demo.py --update-readme")
-            print("README examples are up to date")
+            if not sample_ok:
+                sys.exit("examples/dashboard-sample.html is out of date: run python3 examples/demo.py --dashboard")
+            print("README examples and sample dashboard are up to date")
         else:
             open(README, "w").write(new)
             print("README.md examples updated")
