@@ -1,7 +1,7 @@
 """The tokenwatch command line: argument parsing and report printing."""
 import glob, json, os, pathlib, sys, webbrowser
 from datetime import date, timedelta
-from twlib import args, config, dashboard, prefs
+from twlib import args, config, dashboard, prefs, recap
 from twlib.budget import parse_budget, spend_between, budget_status, budget_line
 from twlib.prefs import budget_text
 from twlib.dates import date_range, period_range
@@ -58,13 +58,14 @@ def export(frag, since, until):
         except Exception: opened = False
         print("   opened in your browser" if opened else "   couldn't start a browser here; open the file above yourself")
 
-SAVABLE = {"--save", "--budget", "--period", "--theme"}
+SAVABLE = {"--save", "--budget", "--period", "--theme", "--recap", "--no-recap"}
 
 
 def save_settings():
     """--save: remember --budget/--period and --theme (None forgets), or show what is saved."""
     extra = [a for a in sys.argv[1:] if a.startswith("--") and a not in SAVABLE]
-    if extra: sys.exit("tokenwatch: --save only remembers --budget and --theme (drop %s)" % " ".join(extra))
+    if extra: sys.exit("tokenwatch: --save only remembers --budget, --theme and --recap/--no-recap (drop %s)" % " ".join(extra))
+    if "--recap" in sys.argv and "--no-recap" in sys.argv: sys.exit("tokenwatch: pick one of --recap and --no-recap")
     changes = {}
     if "--budget" in sys.argv:
         if arg("--budget").lower() in ("off", "none"): changes["budget"] = None
@@ -78,6 +79,8 @@ def save_settings():
         if theme not in dashboard.THEMES:
             sys.exit("tokenwatch: --theme must be one of: " + ", ".join(dashboard.THEMES))
         changes["theme"] = None if theme == "classic" else theme
+    if "--no-recap" in sys.argv: changes["recap"] = "off"
+    if "--recap" in sys.argv: changes["recap"] = None
     try: data = prefs.save(changes) if changes else prefs.load()
     except OSError as e: sys.exit("tokenwatch: cannot save settings to %s: %s" % (config.PREFS, e.strerror))
     print(f"🤖 saved settings: {prefs.describe(data)}\n   kept in {config.PREFS}")
@@ -86,6 +89,10 @@ def save_settings():
 def main():
     args.check(sys.argv)
     if "--save" in sys.argv: return save_settings()
+    if "--no-recap" in sys.argv: sys.exit("tokenwatch: --no-recap only works with --save (turns the weekly recap off)")
+    if "--recap" in sys.argv:
+        print(recap.build() or "📅 tokenwatch: nothing spent last week")
+        return
     frag, show = arg("--project"), int(arg("--sessions", 5))
     try: since, until = date_range(sys.argv)
     except (ValueError, IndexError):
