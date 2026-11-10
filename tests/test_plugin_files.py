@@ -67,7 +67,7 @@ class Skill(CliRunner, unittest.TestCase):
             self.assertIn(key, report)
         for key in ("cost", "tips", "sessions"):
             self.assertIn(key, report["projects"][0])
-        for key in ("start", "model", "turns", "cost", "cost_as_cheaper", "spent", "peak_context", "cold_restarts", "tips"):
+        for key in ("start", "model", "turns", "cost", "cost_as_cheaper", "spent", "peak_context", "cold_restarts", "tips", "agents", "agent_cost"):
             self.assertIn(key, session)
             self.assertIn("`%s`" % key, text)
         for key in ("read", "write", "out", "in"):
