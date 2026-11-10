@@ -11,6 +11,9 @@ SETTINGS = os.path.join(os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(HOME
 # Saved settings (budget, theme). Outside ~/.claude on purpose: tokenwatch never writes there.
 PREFS = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.join(HOME, ".config"), "tokenwatch", "config.json")
 
+# Small bookkeeping (e.g. which week's recap was shown). Never settings, never transcripts.
+STATE = os.path.join(os.environ.get("XDG_STATE_HOME") or os.path.join(HOME, ".local", "state"), "tokenwatch", "recap.json")
+
 # --open writes the dashboard here: a per-user folder in the system temp dir, never inside ~/.claude.
 OUT_DIR = os.path.join(tempfile.gettempdir(), "tokenwatch-%s" % getattr(os, "getuid", lambda: "user")())
 
