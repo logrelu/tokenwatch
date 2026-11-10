@@ -168,7 +168,9 @@ def scan_session(f):
              peak=0, context=0, first_write=0, model="", rebuilds=0, rebuild_cost=0.0,
              hook_runs=0, hook_secs=0.0, hook_chars=0, plugins=set(), bash=[], mcp=defaultdict(int))
     seen = []
-    for line in open(f, errors="ignore"):
+    with open(f, errors="ignore") as fh:
+        lines = fh.readlines()
+    for line in lines:
         h = plugin_hook(line)
         if h:
             s["hook_runs"] += h[0]; s["hook_secs"] += h[1]; s["hook_chars"] += h[2]; s["plugins"].update(h[3])
