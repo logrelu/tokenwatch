@@ -20,7 +20,7 @@ The script is `"${CLAUDE_PLUGIN_ROOT}/tokenwatch.py"`. Always use that exact pat
 | a date or range ("since Monday", "in October") | `--since YYYY-MM-DD [--until YYYY-MM-DD]` (work out the dates from today) |
 | one project ("in myapp") | `--project NAME` |
 | a trend, "every day", "is it going up" | `--daily` (combine with a date flag) |
-| a budget | `--budget N --period day|week|month` only if they give an amount; otherwise the saved budget is used |
+| a budget | `--budget N/PERIOD` (period: day, week or month) only if they give an amount; otherwise the saved budget is used |
 | no time period | `--week`, and say that's what you looked at |
 
 ## 2. Run it as JSON

@@ -1,6 +1,6 @@
 ---
 description: tokenwatch for the last 7 days: cost, tokens burnt and the top suggestions
-argument-hint: "[--project NAME] [--sessions N]"
+argument-hint: "[--project NAME]"
 allowed-tools: Bash(python3:*)
 ---
 
