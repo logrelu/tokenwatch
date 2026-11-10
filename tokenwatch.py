@@ -2,7 +2,7 @@
 """tokenwatch — reads your local Claude Code transcripts and tells you where tokens go.
 
 Everything is local: ~/.claude/projects/**/*.jsonl never leaves this machine.
-Run: python3 tokenwatch.py [--project <name-fragment>] [--sessions <how many per project>]
+Run: python3 tokenwatch.py [--project <name-fragment>] [--sessions <how many per project>] [--json]
 """
 import json, glob, os, re, sys
 from collections import defaultdict
@@ -265,6 +265,20 @@ def advise(p):
         out.append("◦ no MCP tools were ever called in this project — every connected server's tool list is dead weight here.")
     return out
 
+def session_summary(s):
+    """One session as plain JSON-serialisable data (used by --json)."""
+    return {"id": os.path.splitext(os.path.basename(s["file"]))[0], "start": s["start"], "model": s["model"],
+            "turns": s["turns"], "cost": round(s["cost"], 4), "cost_as_cheaper": round(s["as_cheaper"], 4),
+            "tokens": dict(s["tokens"]), "spent": {k: round(v, 4) for k, v in s["spent"].items()},
+            "peak_context": s["peak"], "cold_restarts": s["rebuilds"], "hook_runs": s["hook_runs"],
+            "tips": session_tips(s)}
+
+def project_summary(name, p, show):
+    done = sorted((x for x in p["sessions"] if x["turns"]), key=lambda x: x["start"], reverse=True)
+    return {"project": name, "cost": round(p["cost"], 4), "turns": p["turns"], "tokens": dict(p["stats"]),
+            "sessions_total": len(done), "tips": advise(p), "mcp_used": dict(p["mcp"]),
+            "sessions": [session_summary(x) for x in done[:show]]}
+
 def arg(flag, default=None):
     return sys.argv[sys.argv.index(flag) + 1] if flag in sys.argv else default
 
@@ -279,6 +293,11 @@ def main():
         if p["turns"] == 0: continue
         rows.append((p["cost"], name, p))
     rows.sort(key=lambda r: -r[0])
+    if "--json" in sys.argv:
+        print(json.dumps({"total_cost": round(sum(r[0] for r in rows), 4),
+                          "total_tokens": sum(sum(r[2]["stats"].values()) for r in rows),
+                          "projects": [project_summary(n, p, show) for _, n, p in rows]}, indent=2))
+        return
     grand = burnt = 0
     for cost, name, p in rows:
         s = p["stats"]
