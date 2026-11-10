@@ -64,6 +64,13 @@ Subagents (the helpers Claude starts with the Agent tool) are saved next to it i
 `<session>/subagents/`; their cost is added to the session that started them and shown
 on its line as `incl. N agents ≈$X`, so totals, budgets and the recap include them.
 
+**It stays fast as your history grows.** The first run reads every transcript; after that
+tokenwatch remembers each file's numbers in `~/.cache/tokenwatch/scan.json` (or
+`$XDG_CACHE_HOME/tokenwatch/scan.json`) and only re-reads files that changed. The cache is
+readable only by you, holds the same numbers the report prints (plus the short Bash
+commands the tips look at), is rebuilt by itself when prices or tokenwatch change, and can be
+deleted at any time. Set `TOKENWATCH_CACHE=off` to never write it.
+
 **Everything is local.** No network calls, no telemetry, nothing leaves your
 machine. It's a few hundred lines of dependency-free Python you can read in
 one sitting.
