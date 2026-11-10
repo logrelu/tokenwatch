@@ -121,6 +121,16 @@ python3 tokenwatch.py --project myapp
 ```
 <!-- /demo:report -->
 
+Mistyped options are rejected instead of silently ignored, so a typo can't give you a plausible but wrong report:
+
+```
+$ python3 tokenwatch.py --week,
+tokenwatch: unknown option '--week,' (did you mean --week?)
+Run `python3 tokenwatch.py --help` for the list of options.
+```
+
+`--help` lists every option. Options that take a value want it as a separate word (`--project myapp`, not `--project=myapp`).
+
 Add `--json` for machine-readable output (totals, per-project and per-session numbers, tips),
 for spreadsheets, dashboards or scripts:
 
