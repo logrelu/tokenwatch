@@ -21,7 +21,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/usage.py` | `new_usage`, `context_of`, `plugin_hook`: reading one transcript line. |
 | `twlib/tips.py` | `top_tip`, `session_tips`, `advise`: the plain-English suggestions. |
 | `twlib/live.py` | Live-session state shared by `statusline.py` and `pet.py`. |
-| `twlib/config.py` | `HOME`, `PROJECTS`, `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
+| `twlib/config.py` | `HOME`, `PROJECTS`, `SETTINGS` (read-only), `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
 | `twlib/dates.py` | `session_date`, `date_range`, `period_range`. |
 | `twlib/scan.py` | `scan_session`, `scan_project`, `project_name`: transcripts to numbers. |
 | `twlib/budget.py` | Budget parsing, status and the printed line. |
@@ -34,6 +34,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `examples/dashboard-sample.html` | Generated sample dashboard from fake data. Never edit by hand and never commit a dashboard made from real transcripts. |
 | `twlib/cli.py` | Argument parsing and report printing (`main`). `--open` opens the dashboard through `cli.open_browser`; tests replace it so no real browser starts. |
 | `twlib/dashboard.py` | `--export html`: `collect()` (data dict) and `render_html()` (inline CSS/SVG page, tooltip-only script). Escape every data string with `esc()`. |
+| `twlib/install.py` | `STATUSLINE_COMMAND`: the version-independent statusline command `/tokenwatch:setup` writes (finds the newest installed plugin at run time, runs Python with `-I`), and `pinned_version()` for the greeting's "re-run setup" reminder. Keep `commands/setup.md` in sync (a test checks). |
 | `statusline.py` | Claude Code statusline. Tails the transcript incrementally; state cached in `/tmp/tokenwatch-*.json`. |
 | `sessionstart.py` | SessionStart hook: one line about the previous session. |
 | `pet.py` | Long-running animated cat for a second terminal. |

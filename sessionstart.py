@@ -5,6 +5,7 @@ Optional: TOKENWATCH_BUDGET=20/week adds one budget line (nothing extra is print
 import json, os, sys, glob
 from tokenwatch import (fmt, money, scan_session, session_tips, parse_budget, period_range,
                         spend_between, budget_status, budget_line, PROJECTS)
+from twlib import config, install
 
 
 def last_session_line(meta):
@@ -29,10 +30,16 @@ def budget_check():
     return budget_line(budget_status(spend_between(every, lo, hi), *budget))
 
 
+def setup_reminder():
+    """Only when the statusline is pinned to one plugin version (set up before 0.6.0)."""
+    v = install.pinned_version(install.read_settings(config.SETTINGS))
+    if v: return f"🤖 tokenwatch: statusline is pinned to plugin {v}; run /tokenwatch:setup once so it keeps working after updates."
+
+
 if __name__ == "__main__":
     try: meta = json.load(sys.stdin)
     except Exception: meta = {}
-    for part in (last_session_line, budget_check):
+    for part in (last_session_line, budget_check, setup_reminder):
         try:
             line = part(meta) if part is last_session_line else part()
         except Exception:
