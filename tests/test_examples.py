@@ -53,5 +53,16 @@ class SampleDashboard(unittest.TestCase):
         self.assertEqual(sorted(set(re.findall(r"~/[\w./-]+", self.html))), ["~/Desktop/myapp", "~/Documents/blog"])
 
 
+class ReadmeImages(unittest.TestCase):
+    def test_every_readme_image_exists(self):
+        import re
+        with open(os.path.join(ROOT, "README.md"), encoding="utf-8") as fh:
+            links = re.findall(r"!\[[^\]]*\]\(([^)]+)\)", fh.read())
+        self.assertTrue(links, "README should show at least the dashboard screenshot")
+        for link in links:
+            self.assertFalse(link.startswith("http"), "README images must be local files: " + link)
+            self.assertTrue(os.path.isfile(os.path.join(ROOT, link)), "missing image: " + link)
+
+
 if __name__ == "__main__":
     unittest.main()
