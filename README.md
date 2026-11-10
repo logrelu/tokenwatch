@@ -74,7 +74,8 @@ one sitting.
 ```
 
 This gives you the session greeting automatically, `/tokenwatch:report [--project NAME]`
-for the full report, and `/tokenwatch:setup` for the statusline (plugins can't enable
+for the full report, `/tokenwatch:dashboard` to open the dashboard in your browser, and
+`/tokenwatch:setup` for the statusline (plugins can't enable
 a statusline on their own, so setup writes it to `~/.claude/settings.json`; re-run it
 after a plugin update). The manual setup below still works if you'd rather not use the plugin.
 
@@ -194,11 +195,20 @@ the dollar figure is at API list prices: on a Pro/Max plan read it as how fast y
 ### Dashboard
 
 ```
+/tokenwatch:dashboard                                # in Claude Code: build it and open your browser
+python3 tokenwatch.py --open                         # the same from a terminal
+python3 tokenwatch.py --open --week --theme weather
+python3 tokenwatch.py --export html ~/Desktop/tw.html --week --budget 20   # keep a copy (add --open to also open it)
 python3 tokenwatch.py --export html                  # ./tokenwatch-dashboard.html
-python3 tokenwatch.py --export html ~/Desktop/tw.html --week --budget 20
 ```
 
-Writes one self-contained HTML file you can double-click: total cost, tokens, sessions and turns, cost
+`--open` is the one-step version: it writes the page to a private temporary folder
+(`tokenwatch-<your user id>/dashboard.html` under your system temp folder, readable only by you and
+overwritten each time) and opens it in your default browser. Nothing leaves your machine; the browser
+just opens a local file. With `--export html PATH --open` it writes to `PATH` instead. If no browser
+can be opened (for example over SSH), it prints the path so you can open it yourself.
+
+The dashboard is one self-contained HTML file you can double-click: total cost, tokens, sessions and turns, cost
 per day (last 14 days, or your `--since`/`--until`/`--today`/`--week` range, with a budget-pace line
 when a budget is set), cost by project, where the money went, the top sessions and the tips. Every chart
 has a "Show as table" view. `--project` and `--budget` work as in the report. It follows your light/dark

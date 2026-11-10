@@ -5,7 +5,7 @@ import difflib, sys
 FLAGS = {
     "--project": True, "--sessions": True, "--since": True, "--until": True,
     "--budget": True, "--period": True, "--export": True, "--theme": True,
-    "--json": False, "--today": False, "--week": False, "--daily": False,
+    "--json": False, "--open": False, "--today": False, "--week": False, "--daily": False,
     "--help": False, "-h": False,
 }
 
@@ -20,8 +20,9 @@ usage: python3 tokenwatch.py [options]
   --daily                   per-day cost table with a sparkline
   --budget N [--period day|week|month]   spending budget (or TOKENWATCH_BUDGET=N/period)
   --json                    machine-readable output
-  --export html [PATH]      write a self-contained HTML dashboard
-  --theme classic|weather   dashboard look (weather = parody forecast); with --export
+  --open                    build the HTML dashboard and open it in your browser
+  --export html [PATH]      write a self-contained HTML dashboard (add --open to also open it)
+  --theme classic|weather   dashboard look (weather = parody forecast); with --open or --export
   -h, --help                this help
 """
 

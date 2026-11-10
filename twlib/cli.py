@@ -1,5 +1,5 @@
 """The tokenwatch command line: argument parsing and report printing."""
-import glob, json, os, sys
+import glob, json, os, pathlib, sys, webbrowser
 from datetime import date, timedelta
 from twlib import args, config, dashboard
 from twlib.budget import parse_budget, spend_between, budget_status, budget_line
@@ -13,13 +13,35 @@ from twlib.trend import daily_totals, trend_lines
 def arg(flag, default=None):
     return sys.argv[sys.argv.index(flag) + 1] if flag in sys.argv else default
 
+# Replaced in tests so no real browser starts. Returns False when no browser could be opened.
+open_browser = webbrowser.open
+
+
+def private_out_dir():
+    """config.OUT_DIR, created readable only by you. Refuses a folder someone else owns (shared /tmp)."""
+    d = config.OUT_DIR
+    try:
+        os.makedirs(d, mode=0o700, exist_ok=True)
+        st = os.lstat(d)
+    except OSError as e:
+        sys.exit(f"tokenwatch: cannot create {d}: {e.strerror}; pass --export html PATH instead")
+    if os.path.islink(d) or (hasattr(os, "getuid") and st.st_uid != os.getuid()):
+        sys.exit(f"tokenwatch: {d} is not a folder you own; pass --export html PATH instead")
+    os.chmod(d, 0o700)
+    return d
+
+
 def export(frag, since, until):
-    """--export html [PATH]: write the static dashboard and say where it went."""
-    i = sys.argv.index("--export")
-    rest = sys.argv[i + 1:i + 3]
-    if not rest or rest[0] != "html": sys.exit("tokenwatch: --export html [PATH]")
-    path = rest[1] if len(rest) > 1 and not rest[1].startswith("--") else None
-    if path is None:
+    """--export html [PATH] and/or --open: write the static dashboard, say where it went, maybe open it."""
+    opening, path = "--open" in sys.argv, None
+    if "--export" in sys.argv:
+        i = sys.argv.index("--export")
+        rest = sys.argv[i + 1:i + 3]
+        if not rest or rest[0] != "html": sys.exit("tokenwatch: --export html [PATH]")
+        path = rest[1] if len(rest) > 1 and not rest[1].startswith("--") else None
+    if path is None and opening:
+        path = os.path.join(private_out_dir(), "dashboard.html")
+    elif path is None:
         path = os.path.join(os.getcwd(), "tokenwatch-dashboard.html")
         here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         if os.path.commonpath([here, os.path.abspath(path)]) == here:
@@ -35,6 +57,10 @@ def export(frag, since, until):
     try: dashboard.write_dashboard(path, data, theme)
     except OSError as e: sys.exit("tokenwatch: cannot write %s: %s" % (path, e.strerror))
     print(f"🤖 dashboard written to {path}\n   it contains your project names; don't share it publicly")
+    if opening:
+        try: opened = open_browser(pathlib.Path(path).resolve().as_uri())
+        except Exception: opened = False
+        print("   opened in your browser" if opened else "   couldn't start a browser here; open the file above yourself")
 
 def main():
     args.check(sys.argv)
@@ -42,7 +68,7 @@ def main():
     try: since, until = date_range(sys.argv)
     except (ValueError, IndexError):
         sys.exit("tokenwatch: --since/--until need a date like 2026-10-01")
-    if "--export" in sys.argv: return export(frag, since, until)
+    if "--export" in sys.argv or "--open" in sys.argv: return export(frag, since, until)
     rows = []
     for pdir in sorted(glob.glob(os.path.join(config.PROJECTS, "*"))):
         if not os.path.isdir(pdir): continue
