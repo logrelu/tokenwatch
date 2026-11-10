@@ -290,6 +290,11 @@ spotting waste, not an invoice.
         ~(=^.^=)    purring along · $0.04/min
 ```
 
+With a budget saved (`/tokenwatch:budget 25/week`), line 1 also shows how much of it you have used,
+e.g. `💰 64% of $25/week`. It turns yellow at 80% and red once you are over, so you notice before the
+end of the week, not after. The total is refreshed at most every 5 minutes (cached in your private temp
+folder), so it doesn't slow the statusline down.
+
 Line 2 is Purr, a cat that patrols the line and reacts to how fast you are
 spending. First match wins:
 
