@@ -167,7 +167,8 @@ def scan_session(f):
     s = dict(file=f, start="", turns=0, cost=0.0, tokens={k: 0 for k in KINDS},
              spent={"read": 0.0, "write": 0.0, "out": 0.0, "in": 0.0}, as_cheaper=0.0,
              peak=0, context=0, first_write=0, model="", rebuilds=0, rebuild_cost=0.0,
-             hook_runs=0, hook_secs=0.0, hook_chars=0, plugins=set(), bash=[], mcp=defaultdict(int))
+             hook_runs=0, hook_secs=0.0, hook_chars=0, plugins=set(), bash=[], mcp=defaultdict(int),
+             daily=defaultdict(float))
     seen = []
     with open(f, errors="ignore") as fh:
         lines = fh.readlines()
@@ -188,6 +189,8 @@ def scan_session(f):
             s["cost"] += sum(parts.values())
             s["as_cheaper"] += cost_of(CHEAPER, u)
             for k in parts: s["spent"][k] += parts[k]
+            day = session_date(d.get("timestamp") or "")
+            if day: s["daily"][day] += sum(parts.values())
             for k in KINDS: s["tokens"][k] += u.get(k, 0)
             if model.startswith("claude"): s["model"] = model
             s["context"] = context_of(u); s["peak"] = max(s["peak"], s["context"])
