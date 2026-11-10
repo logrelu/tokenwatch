@@ -381,6 +381,14 @@ install, `/tokenwatch:pet` prints the exact command to paste.
 - Claude Code with local transcripts (the default)
 - Python 3.9+ (no packages needed)
 
+## Contributing
+
+Every change goes through a pull request. Before merging, have the `pr-reviewer` agent
+(`.claude/agents/pr-reviewer.md`, loaded automatically when you open this repo in Claude Code) review it:
+ask Claude Code to "run pr-reviewer on PR 27". It is deliberately blunt: it checks the diff against
+this project's rules, runs the tests, and separates real value from decoration. It only reads; it never
+edits, pushes or merges. See `CLAUDE.md` for how its verdict is used.
+
 ## License
 
 MIT

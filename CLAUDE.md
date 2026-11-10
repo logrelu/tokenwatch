@@ -43,6 +43,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `skills/tokenwatch/SKILL.md` | The plain-English skill: maps a question ("why was today expensive?") to CLI flags, runs `--json`, answers briefly. Every flag it mentions must exist in `args.FLAGS` (a test checks). |
 | `commands/*.md` | Plugin slash commands (`report`, `today`, `week`, `dashboard`, `budget`, `setup`, `pet`). Commands that run a script use a `` !`...` `` line and repeat the command in plain text, because some apps (Claude Desktop) don't run that line. |
 | `hooks/hooks.json` | Registers the SessionStart hook for plugin installs. |
+| `.claude/agents/pr-reviewer.md` | The blunt, read-only reviewer to run on every PR before merge (see Commits and PRs). A project agent, not a plugin one: it lives in `.claude/agents/` (un-ignored in `.gitignore`), so it never ships to users who install the plugin. `tests/test_agents.py` keeps it read-only and aimed at this repo's rules. |
 | `.claude-plugin/` | Plugin and marketplace manifests. Bump `version` in `plugin.json` on user-visible changes. |
 
 ## Things to know
@@ -86,3 +87,13 @@ result (`tests/test_examples.py` fails otherwise). Never paste real transcripts 
 
 One small, focused commit per logical change. One PR per goal. Keep the README in sync with any
 new flag or behaviour.
+
+**Before a PR is merged, run the `pr-reviewer` agent on it** ("run pr-reviewer on PR N") and deal with its
+verdict:
+
+- `BLOCK`: do not merge. Fix it or show with evidence that the finding is wrong, then re-run the reviewer.
+- `FIX FIRST`: fix each finding, or answer it in the PR description with a reason.
+- `MERGE`: fine to merge; still skim its "bullshit" list, which is advice for the next PR.
+
+Paste the verdict line and what you did about the findings into the PR description under "Review". The
+reviewer only reads; the author makes the changes, and the owner presses merge.
