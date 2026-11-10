@@ -129,7 +129,7 @@ def daily_chart(days, pace=None):
         out.append('<text class="ax" x="%d" y="%.1f" text-anchor="end">%s</text>' % (L - 6, y_of(v) + 4, _tick(v)))
         v += step
     out.append('<line class="base" x1="%d" x2="%d" y1="%.1f" y2="%.1f"/>' % (L, W - R, y_of(0), y_of(0)))
-    every = max(1, -(-n // 7))   # about seven x labels, however many days
+    every = max(1, -(-n // 6))   # about six x labels, however many days
     best = max(range(len(days)), key=lambda i: days[i]["cost"]) if days and top > 0 else None
     for i, d in enumerate(days):
         cx = L + slot * (i + 0.5)
@@ -207,8 +207,8 @@ h1{font-size:22px;margin:0}
 .meter.warn i{background:var(--warn)}.meter.over i{background:var(--crit)}
 .chart{display:block;width:100%;height:auto}
 .chart .grid{stroke:var(--grid);stroke-width:1}.chart .base{stroke:var(--base);stroke-width:1}
-.chart .ax{fill:var(--muted);font-size:12px}
-.chart .peak{fill:var(--ink);font-size:12px;font-weight:600}
+.chart .ax{fill:var(--muted);font-size:9px}
+.chart .peak{fill:var(--ink);font-size:9.5px;font-weight:600}
 .chart .bar{fill:var(--c1)}.chart .hit{fill:transparent}
 .chart .col:hover .bar,.chart .col:focus .bar{fill:var(--ink)}.chart .col{outline:none}
 .chart .pace{stroke:var(--ink2);stroke-width:2;stroke-dasharray:6 4}
@@ -241,7 +241,7 @@ td.wrap{white-space:normal}
 footer{color:var(--muted);font-size:12px;margin-top:8px}
 #tip{position:fixed;z-index:9;pointer-events:none;background:var(--ink);color:var(--surface);padding:4px 8px;
 border-radius:6px;font-size:12px;font-weight:600;display:none;max-width:260px}
-@media (max-width:520px){.chart .ax,.chart .peak{font-size:17px}.kpi.hero .v{font-size:40px}.prow{grid-template-columns:1fr auto}
+@media (max-width:520px){.chart .ax,.chart .peak{font-size:20px}.kpi.hero .v{font-size:40px}.prow{grid-template-columns:1fr auto}
 .ptrack{grid-column:1/-1;order:3}}
 """
 
