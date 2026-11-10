@@ -32,7 +32,8 @@ python3 "${CLAUDE_PLUGIN_ROOT}/tokenwatch.py" --json --sessions 3 FLAGS
 - Without `--daily` you get `total_cost`, `total_tokens`, `budget` (or null) and `projects`, most expensive first.
   Each project has `cost`, `tips` and `sessions`. Each session has `start`, `model`, `turns`, `cost`,
   `cost_as_cheaper`, `spent` (`read` re-reading history, `write` saving history, `out` Claude's writing,
-  `in` new input), `peak_context`, `cold_restarts` and `tips`.
+  `in` new input), `peak_context`, `cold_restarts`, `tips`, and `agents` / `agent_cost`: how many subagents
+  the session started and how much of its `cost` they account for (already included in `cost`).
 - With `--daily` you get `days` (`date`, `cost`) and `total_cost`.
 
 ## 3. Answer

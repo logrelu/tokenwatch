@@ -18,6 +18,12 @@ def arg(flag, default=None):
 open_browser = webbrowser.open
 
 
+def agents_note(s):
+    """' · incl. 2 agents ≈$1.20' when subagents added to a session's cost, else ''."""
+    n = s.get("agents", 0)
+    return f" · incl. {n} agent{'s' if n != 1 else ''} ≈{money(s['agent_cost'])}" if n else ""
+
+
 def private_out_dir():
     """config.private_dir(), or exit with a message (symlink, someone else's folder, can't create)."""
     try: return config.private_dir()
@@ -149,7 +155,7 @@ def main():
         for x in done[:show]:
             sp = x["spent"]
             print(f"\n   ▸ {when(x['start'])} · 🪙 ≈{money(x['cost'])} · 🔥 {fmt(sum(x['tokens'].values()))} tokens · "
-                  f"{x['turns']} turns · {nice(x['model'])}")
+                  f"{x['turns']} turns · {nice(x['model'])}" + agents_note(x))
             print(f"     where it went: re-reading history {money(sp['read'])} · saving history {money(sp['write'])} · "
                   f"Claude's writing {money(sp['out'])} · new input {money(sp['in'])}")
             for t in session_tips(x) or ["✓ nothing to fix"]: print(f"     💡 {t}" if t[0] != "✓" else f"     😺 {t[2:]}")

@@ -60,6 +60,9 @@ Everything tokenwatch prints is built from the same three parts:
 
 The data is the transcripts Claude Code already saves at
 `~/.claude/projects/<project>/<session>.jsonl`. tokenwatch only reads them.
+Subagents (the helpers Claude starts with the Agent tool) are saved next to it in
+`<session>/subagents/`; their cost is added to the session that started them and shown
+on its line as `incl. N agents ≈$X`, so totals, budgets and the recap include them.
 
 **Everything is local.** No network calls, no telemetry, nothing leaves your
 machine. It's a few hundred lines of dependency-free Python you can read in
@@ -121,14 +124,14 @@ python3 tokenwatch.py --project myapp
 <!-- demo:report -->
 ```
 🤖 ━━ ~/Desktop/myapp
-   🪙 ≈$15.57 · 🔥 23M tokens burnt · 2 session(s) · 140 turns
-   out 312K · in 820 · cache w 989K / r 22M
+   🪙 ≈$15.65 · 🔥 23M tokens burnt · 2 session(s) · 140 turns
+   out 320K · in 852 · cache w 1M / r 22M
    ⚠ heavy session start: ~51K tokens of context are loaded before any work happens. That's tool lists, connectors, plugins and CLAUDE.md. Prune what this project doesn't use.
    ◦ MCP actually used here: some-server (10x). Any other connected server is pure context overhead for this project.
 
-   ▸ 2 Oct 09:34 · 🪙 ≈$5.82 · 🔥 1M tokens · 20 turns · Opus 5.5
-     where it went: re-reading history $0.17 · saving history $0.25 · Claude's writing $5.40 · new input $0.00
-     💡 model: this ran on Opus 5.5. The same tokens at Sonnet 5.5 prices come to ≈$2.99: /model sonnet for routine work.
+   ▸ 2 Oct 09:34 · 🪙 ≈$5.90 · 🔥 1M tokens · 20 turns · Opus 5.5 · incl. 1 agent ≈$0.08
+     where it went: re-reading history $0.18 · saving history $0.28 · Claude's writing $5.44 · new input $0.00
+     💡 model: this ran on Opus 5.5. The same tokens at Sonnet 5.5 prices come to ≈$3.16: /model sonnet for routine work.
 
    ▸ 1 Oct 10:03 · 🪙 ≈$9.75 · 🔥 22M tokens · 120 turns · Opus 5.5
      where it went: re-reading history $4.20 · saving history $4.69 · Claude's writing $0.85 · new input $0.00
@@ -136,7 +139,7 @@ python3 tokenwatch.py --project myapp
      💡 cold restarts: 2 times the whole conversation had to be saved again (≈$2.10), usually after a break of an hour or more. After a long break, /clear and start fresh rather than continuing a huge chat.
      💡 plugin hooks (some-plugin) ran 480 times, ≈9 min of hook time, and added ≈4K tokens to the chat. If this project doesn't use that plugin, turn it off in /plugins.
 
-🤖 ═══ all projects: 🪙 ≈$15.57 at API list prices · 🔥 23M tokens burnt
+🤖 ═══ all projects: 🪙 ≈$15.65 at API list prices · 🔥 23M tokens burnt
 ```
 <!-- /demo:report -->
 
@@ -179,7 +182,7 @@ python3 tokenwatch.py --daily --since 2026-10-01 --json
 ```
 📈 █▅▁▁▁▁▁  01 Oct → 07 Oct
    Thu 01 Oct     $9.75  ████████████████████  🔥 busiest
-   Fri 02 Oct     $5.82  ████████████
+   Fri 02 Oct     $5.90  ████████████
    Sat 03 Oct     $0.36  █
    Sun 04 Oct     $0.00  
    Mon 05 Oct     $0.00  
@@ -202,7 +205,7 @@ python3 tokenwatch.py --budget 25 --period week      # just for this run; period
 
 <!-- demo:budget -->
 ```
-💰 last 7 days: $15.93 of $25.00 budget (64%) ▓▓▓▓▓▓░░░░ 😺 on track
+💰 last 7 days: $16.01 of $25.00 budget (64%) ▓▓▓▓▓▓░░░░ 😺 on track
 ```
 <!-- /demo:budget -->
 
@@ -348,7 +351,7 @@ before: what it cost, how many sessions, the priciest project and how it compare
 
 <!-- demo:recap -->
 ```
-📅 tokenwatch: last week (28 Sep – 4 Oct): ≈$15.93 over 3 sessions · priciest: ~/Desktop/myapp ($15.57)
+📅 tokenwatch: last week (28 Sep – 4 Oct): ≈$16.01 over 3 sessions · priciest: ~/Desktop/myapp ($15.65)
 ```
 <!-- /demo:recap -->
 

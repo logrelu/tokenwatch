@@ -45,12 +45,14 @@ LIVE_MAX_AGE = 300      # seconds the statusline reuses a computed budget total
 
 
 def _changed_since(day):
-    """Transcripts modified since the day before `day` (older files can't hold replies in the period)."""
+    """Session transcripts modified (they or their subagents) since the day before `day`: older files can't
+    hold replies in the period."""
+    from twlib.scan import last_modified
     cutoff = (datetime.combine(day, datetime.min.time()) - timedelta(days=1)).timestamp()
     out = []
     for f in glob.glob(os.path.join(config.PROJECTS, "*", "*.jsonl")):
         try:
-            if os.path.getmtime(f) >= cutoff: out.append(f)
+            if last_modified(f) >= cutoff: out.append(f)
         except OSError: pass
     return out
 
