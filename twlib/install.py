@@ -36,3 +36,20 @@ def read_settings(path):
         return d if isinstance(d, dict) else {}
     except (OSError, ValueError):
         return {}
+
+
+def verify(path):
+    """One line saying whether settings.json at `path` has exactly STATUSLINE; True when it does."""
+    got = read_settings(path).get("statusLine")
+    if got == STATUSLINE:
+        print("tokenwatch: statusline is set up and will follow plugin updates")
+        return True
+    print("tokenwatch: statusLine in %s does not match; set it to exactly:\n%s" % (path, json.dumps(STATUSLINE)))
+    return False
+
+
+if __name__ == "__main__":      # python3 twlib/install.py --verify [SETTINGS_PATH]; read-only
+    import sys
+    rest = [a for a in sys.argv[1:] if a != "--verify"]
+    default = os.path.join(os.environ.get("CLAUDE_CONFIG_DIR") or os.path.expanduser("~/.claude"), "settings.json")
+    sys.exit(0 if verify(rest[0] if rest else default) else 1)
