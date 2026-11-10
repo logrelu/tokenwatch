@@ -76,6 +76,18 @@ for the full report, and `/tokenwatch:setup` for the statusline (plugins can't e
 a statusline on their own, so setup writes it to `~/.claude/settings.json`; re-run it
 after a plugin update). The manual setup below still works if you'd rather not use the plugin.
 
+### Updating
+
+Plugin install:
+
+```
+/plugin marketplace update tokenwatch
+/plugin update tokenwatch@tokenwatch
+/tokenwatch:setup      # re-run: the statusline path points into the plugin's versioned folder
+```
+
+Cloned manually: `git pull` in your checkout; nothing else changes.
+
 ## The three surfaces
 
 ### 1. CLI report
