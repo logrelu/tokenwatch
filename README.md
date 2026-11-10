@@ -194,6 +194,10 @@ when a budget is set), cost by project, where the money went, the top sessions a
 has a "Show as table" view. `--project` and `--budget` work as in the report. It follows your light/dark
 setting and fits a phone.
 
+![tokenwatch dashboard: KPI tiles, budget bar, cost per day, cost by project, where the money went, top sessions and tips](docs/dashboard.png)
+
+*Screenshot of the sample dashboard below: made-up data, not a real machine.*
+
 **See it without your own data:** [`examples/dashboard-sample.html`](examples/dashboard-sample.html) is the
 dashboard generated from the same made-up demo data as the examples above (project `myapp`, October 2026;
 nothing from a real machine). GitHub shows HTML as source, so download the file and open it in a browser.
