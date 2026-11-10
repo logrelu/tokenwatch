@@ -27,6 +27,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/budget.py` | Budget parsing, status and the printed line. |
 | `twlib/trend.py` | Daily totals, sparkline, trend table. |
 | `twlib/report.py` | JSON-serialisable session/project summaries. |
+| `examples/demo.py` | Builds FAKE transcripts and renders the README examples with the real CLI. `--update-readme` rewrites the `<!-- demo:NAME -->` blocks; `--check` runs in the tests. |
 | `twlib/cli.py` | Argument parsing and report printing (`main`). |
 | `twlib/dashboard.py` | `--export html`: `collect()` (data dict) and `render_html()` (inline CSS/SVG page, tooltip-only script). Escape every data string with `esc()`. |
 | `statusline.py` | Claude Code statusline. Tails the transcript incrementally; state cached in `/tmp/tokenwatch-*.json`. |
@@ -61,6 +62,12 @@ python3 -m unittest tests.test_budget      # run one module's tests
 One file per `twlib` module in `tests/` (`test_scan.py`, `test_budget.py`, ...). Shared helpers live in
 `tests/helpers.py`: `reply`/`write_session` build synthetic transcripts, and the `CliRunner` mixin runs the
 CLI against a temp folder. Tests must never read real transcripts: always go through `helpers`.
+
+## README examples
+
+Never hand-write output samples in the README. The `session`, `report`, `daily` and `budget` blocks are generated
+from invented data: after changing output formats, run `python3 examples/demo.py --update-readme` and commit the
+result (`tests/test_examples.py` fails otherwise). Never paste real transcripts or real output into docs.
 
 ## Commits and PRs
 
