@@ -1,4 +1,4 @@
-import json, os, sys, tempfile, unittest
+import contextlib, io, json, os, shutil, sys, tempfile, unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import tokenwatch as tw
@@ -101,6 +101,40 @@ class ScanSession(unittest.TestCase):
         f = write_session([reply("a", output_tokens=10)])
         self.addCleanup(os.unlink, f)
         self.assertEqual(tw.session_tips(tw.scan_session(f)), [])
+
+
+class JsonOutput(unittest.TestCase):
+    def run_cli(self, *args):
+        root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, root)
+        pdir = os.path.join(root, "-Users-me-app")
+        os.makedirs(pdir)
+        with open(os.path.join(pdir, "s1.jsonl"), "w") as fh:
+            fh.write(json.dumps(reply("a", output_tokens=1000)) + "\n")
+        old_projects, old_argv = tw.PROJECTS, sys.argv
+        tw.PROJECTS, sys.argv = root, ["tokenwatch.py", *args]
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                tw.main()
+        finally:
+            tw.PROJECTS, sys.argv = old_projects, old_argv
+        return out.getvalue()
+
+    def test_json_is_valid_and_complete(self):
+        d = json.loads(self.run_cli("--json"))
+        self.assertEqual(len(d["projects"]), 1)
+        sess = d["projects"][0]["sessions"][0]
+        self.assertEqual(sess["id"], "s1")
+        self.assertEqual(sess["turns"], 1)
+        self.assertEqual(sess["tokens"]["output_tokens"], 1000)
+        self.assertAlmostEqual(d["total_cost"], 0.01)
+
+    def test_text_report_unchanged_without_flag(self):
+        out = self.run_cli()
+        self.assertIn("all projects", out)
+        with self.assertRaises(ValueError):
+            json.loads(out)
 
 
 if __name__ == "__main__":
