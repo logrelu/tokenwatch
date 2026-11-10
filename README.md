@@ -76,8 +76,8 @@ one sitting.
 This gives you the session greeting automatically, `/tokenwatch:report [--project NAME]`
 for the full report, `/tokenwatch:dashboard` to open the dashboard in your browser, and
 `/tokenwatch:setup` for the statusline (plugins can't enable
-a statusline on their own, so setup writes it to `~/.claude/settings.json`; re-run it
-after a plugin update). The manual setup below still works if you'd rather not use the plugin.
+a statusline on their own, so setup writes it to `~/.claude/settings.json`). Run setup once: the
+statusline it writes always starts the newest installed tokenwatch, so it keeps working after updates. The manual setup below still works if you'd rather not use the plugin.
 
 ### Updating
 
@@ -86,8 +86,11 @@ Plugin install:
 ```
 /plugin marketplace update tokenwatch
 /plugin update tokenwatch@tokenwatch
-/tokenwatch:setup      # re-run: the statusline path points into the plugin's versioned folder
 ```
+
+That's all. Since 0.6.0 the statusline follows updates on its own. If you set it up with an older
+version, run `/tokenwatch:setup` one more time; the session greeting reminds you until you do.
+`/tokenwatch:setup` also points out an old manual tokenwatch hook that would greet you twice.
 
 Cloned manually: `git pull` in your checkout; nothing else changes.
 
