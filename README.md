@@ -194,6 +194,11 @@ when a budget is set), cost by project, where the money went, the top sessions a
 has a "Show as table" view. `--project` and `--budget` work as in the report. It follows your light/dark
 setting and fits a phone.
 
+**See it without your own data:** [`examples/dashboard-sample.html`](examples/dashboard-sample.html) is the
+dashboard generated from the same made-up demo data as the examples above (project `myapp`, October 2026;
+nothing from a real machine). GitHub shows HTML as source, so download the file and open it in a browser.
+It is rebuilt with `python3 examples/demo.py --dashboard` and kept in sync by the tests.
+
 It is fully local: inline CSS and SVG, a tiny inline script for hover tooltips, no network, no external
 fonts or scripts. The file lists your real project names, so don't share or commit it. tokenwatch
 refuses to write it inside its own checkout by default.

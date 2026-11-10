@@ -27,7 +27,8 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/budget.py` | Budget parsing, status and the printed line. |
 | `twlib/trend.py` | Daily totals, sparkline, trend table. |
 | `twlib/report.py` | JSON-serialisable session/project summaries. |
-| `examples/demo.py` | Builds FAKE transcripts and renders the README examples with the real CLI. `--update-readme` rewrites the `<!-- demo:NAME -->` blocks; `--check` runs in the tests. |
+| `examples/demo.py` | Builds FAKE transcripts and renders the README examples with the real CLI. `--update-readme` rewrites the `<!-- demo:NAME -->` blocks, `--dashboard` rewrites `examples/dashboard-sample.html`, `--check` (run in the tests) verifies both. |
+| `examples/dashboard-sample.html` | Generated sample dashboard from fake data. Never edit by hand and never commit a dashboard made from real transcripts. |
 | `twlib/cli.py` | Argument parsing and report printing (`main`). |
 | `twlib/dashboard.py` | `--export html`: `collect()` (data dict) and `render_html()` (inline CSS/SVG page, tooltip-only script). Escape every data string with `esc()`. |
 | `statusline.py` | Claude Code statusline. Tails the transcript incrementally; state cached in `/tmp/tokenwatch-*.json`. |
@@ -67,7 +68,8 @@ CLI against a temp folder. Tests must never read real transcripts: always go thr
 
 Never hand-write output samples in the README. The `session`, `report`, `daily` and `budget` blocks are generated
 from invented data: after changing output formats, run `python3 examples/demo.py --update-readme` and commit the
-result (`tests/test_examples.py` fails otherwise). Never paste real transcripts or real output into docs.
+result (`tests/test_examples.py` fails otherwise). Never paste real transcripts or real output into docs. The sample dashboard is generated the same way
+(`python3 examples/demo.py --dashboard`); regenerate it after any change to `twlib/dashboard.py`.
 
 ## Commits and PRs
 
