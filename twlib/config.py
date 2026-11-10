@@ -14,13 +14,18 @@ PREFS = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.join(HOME, ".c
 # Small bookkeeping (e.g. which week's recap was shown). Never settings, never transcripts.
 STATE = os.path.join(os.environ.get("XDG_STATE_HOME") or os.path.join(HOME, ".local", "state"), "tokenwatch", "recap.json")
 
+# Per-file scan results so unchanged transcripts aren't re-read (twlib/cache.py). TOKENWATCH_CACHE=off: no cache.
+CACHE = (None if (os.environ.get("TOKENWATCH_CACHE") or "").lower() in ("off", "0", "no", "false") else
+         os.path.join(os.environ.get("XDG_CACHE_HOME") or os.path.join(HOME, ".cache"), "tokenwatch", "scan.json"))
+
 # --open writes the dashboard here: a per-user folder in the system temp dir, never inside ~/.claude.
 OUT_DIR = os.path.join(tempfile.gettempdir(), "tokenwatch-%s" % getattr(os, "getuid", lambda: "user")())
 
 
-def private_dir():
-    """OUT_DIR, created readable only by you. Raises OSError for a symlink or a folder someone else owns."""
-    d = OUT_DIR
+def private_dir(d=None):
+    """Folder `d` (default OUT_DIR), created readable only by you. Raises OSError for a symlink or a folder
+    someone else owns."""
+    d = d or OUT_DIR
     os.makedirs(d, mode=0o700, exist_ok=True)
     st = os.lstat(d)
     if os.path.islink(d) or (hasattr(os, "getuid") and st.st_uid != os.getuid()):
