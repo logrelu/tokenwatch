@@ -325,10 +325,19 @@ def render_html(data):
                  % (_json_for_script(data), SCRIPT))
     return "".join(parts)
 
-def write_dashboard(path, data):
+THEMES = ("classic", "weather")
+
+def render_theme(data, theme="classic"):
+    """The page for `theme`: the classic dashboard, or the weather-report parody (same data)."""
+    if theme == "weather":
+        from twlib import weather      # imported here: weather builds on this module's helpers
+        return weather.render(data)
+    return render_html(data)
+
+def write_dashboard(path, data, theme="classic"):
     """Write the dashboard to `path` and return the path."""
     with open(path, "w", encoding="utf-8") as fh:
-        fh.write(render_html(data))
+        fh.write(render_theme(data, theme))
     return path
 
 def table(headers, rows, num=()):

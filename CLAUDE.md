@@ -29,6 +29,8 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/report.py` | JSON-serialisable session/project summaries. |
 | `examples/demo.py` | Builds FAKE transcripts and renders the README examples with the real CLI. `--update-readme` rewrites the `<!-- demo:NAME -->` blocks, `--dashboard` rewrites `examples/dashboard-sample.html`, `--check` (run in the tests) verifies both. |
 | `docs/dashboard.png` | Screenshot of `examples/dashboard-sample.html` (made-up data only), shown in the README. Retake it after visible changes to `twlib/dashboard.py`; check it shows no real names, tabs or paths before committing. |
+| `twlib/weather.py` | `--theme weather`: renders the same `dashboard.collect()` data as a parody weather report (inline SVG icons, no images, no external resources). Mapping rules (conditions, advisories, storm names) are pure functions with tests. |
+| `examples/dashboard-sample-weather.html` | Generated weather-theme sample from fake data (`python3 examples/demo.py --dashboard`). Never edit by hand. |
 | `examples/dashboard-sample.html` | Generated sample dashboard from fake data. Never edit by hand and never commit a dashboard made from real transcripts. |
 | `twlib/cli.py` | Argument parsing and report printing (`main`). |
 | `twlib/dashboard.py` | `--export html`: `collect()` (data dict) and `render_html()` (inline CSS/SVG page, tooltip-only script). Escape every data string with `esc()`. |

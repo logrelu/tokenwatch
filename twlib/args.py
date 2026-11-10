@@ -4,7 +4,7 @@ import difflib, sys
 # option -> does it take a value? Register every new CLI option here (and in USAGE).
 FLAGS = {
     "--project": True, "--sessions": True, "--since": True, "--until": True,
-    "--budget": True, "--period": True, "--export": True,
+    "--budget": True, "--period": True, "--export": True, "--theme": True,
     "--json": False, "--today": False, "--week": False, "--daily": False,
     "--help": False, "-h": False,
 }
@@ -21,6 +21,7 @@ usage: python3 tokenwatch.py [options]
   --budget N [--period day|week|month]   spending budget (or TOKENWATCH_BUDGET=N/period)
   --json                    machine-readable output
   --export html [PATH]      write a self-contained HTML dashboard
+  --theme classic|weather   dashboard look (weather = parody forecast); with --export
   -h, --help                this help
 """
 

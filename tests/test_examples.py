@@ -7,6 +7,7 @@ import unittest
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEMO = os.path.join(ROOT, "examples", "demo.py")
 SAMPLE = os.path.join(ROOT, "examples", "dashboard-sample.html")
+WEATHER = os.path.join(ROOT, "examples", "dashboard-sample-weather.html")
 
 
 def demo(*args):
@@ -31,8 +32,11 @@ class ReadmeExamples(unittest.TestCase):
 
 class SampleDashboard(unittest.TestCase):
     def setUp(self):
-        with open(SAMPLE, encoding="utf-8") as fh:
-            self.html = fh.read()
+        self.pages = {}
+        for path in (SAMPLE, WEATHER):
+            with open(path, encoding="utf-8") as fh:
+                self.pages[os.path.basename(path)] = fh.read()
+        self.html = "\n".join(self.pages.values())      # every check below covers both samples
 
     def test_sample_is_in_sync_with_the_generator(self):
         r = demo("--check")                       # also compares the sample file with a fresh render

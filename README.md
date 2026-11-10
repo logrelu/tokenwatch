@@ -213,6 +213,18 @@ dashboard generated from the same made-up demo data as the examples above (proje
 nothing from a real machine). GitHub shows HTML as source, so download the file and open it in a browser.
 It is rebuilt with `python3 examples/demo.py --dashboard` and kept in sync by the tests.
 
+**Weather-report theme.** Add `--theme weather` for a parody forecast of your spending, presented by
+Purr the meteorologist: today's spend as the temperature, a 7-day forecast (sunny below your budget pace,
+thunderstorms above it), budget pressure on a barometer, "precipitation" by cost type, projects as regions,
+your priciest sessions as named storms, and the tips as weather advisories (flood warning for long chats,
+freeze warning for cold restarts). Same numbers, same privacy rules, just sillier:
+
+```
+python3 tokenwatch.py --export html ~/Desktop/forecast.html --week --budget 25 --theme weather
+```
+
+A sample from the same made-up data is in [`examples/dashboard-sample-weather.html`](examples/dashboard-sample-weather.html).
+
 It is fully local: inline CSS and SVG, a tiny inline script for hover tooltips, no network, no external
 fonts or scripts. The file lists your real project names, so don't share or commit it. tokenwatch
 refuses to write it inside its own checkout by default.

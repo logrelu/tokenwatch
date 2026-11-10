@@ -6,7 +6,7 @@ machine. Output is deterministic (UTC, fixed dates), so it can be checked in CI.
 
     python3 examples/demo.py                 # print every example block
     python3 examples/demo.py --update-readme # rewrite the <!-- demo:NAME --> blocks in README.md
-    python3 examples/demo.py --dashboard     # rewrite examples/dashboard-sample.html
+    python3 examples/demo.py --dashboard     # rewrite both sample dashboards in examples/
     python3 examples/demo.py --check         # exit 1 if README.md or the sample dashboard is out of date
 """
 import contextlib, io, json, os, re, shutil, sys, tempfile, time
@@ -22,6 +22,7 @@ from twlib import cli, config, dashboard, scan
 
 README = os.path.join(ROOT, "README.md")
 SAMPLE = os.path.join(ROOT, "examples", "dashboard-sample.html")
+WEATHER = os.path.join(ROOT, "examples", "dashboard-sample-weather.html")
 OPUS, SONNET = "claude-opus-5-5", "claude-sonnet-5-5"
 BLOCKS = ("session", "report", "daily", "budget")
 
@@ -109,7 +110,7 @@ def run(*args):
         shutil.rmtree(root)
 
 
-def dashboard_html():
+def dashboard_html(theme="classic"):
     """The dashboard for the fake projects: a fixed week, a $25 weekly budget, and a fixed 'today'."""
     root = tempfile.mkdtemp()
     saved = (config.PROJECTS, scan.HOME)
@@ -117,7 +118,7 @@ def dashboard_html():
         build(root)
         config.PROJECTS, scan.HOME = root, "/Users/demo"
         data = dashboard.collect(None, date(2026, 10, 1), date(2026, 10, 7), (25.0, "week"), today=date(2026, 10, 7))
-        return dashboard.render_html(data)
+        return dashboard.render_theme(data, theme)
     finally:
         config.PROJECTS, scan.HOME = saved
         shutil.rmtree(root)
@@ -148,21 +149,24 @@ def render(text, data):
 
 if __name__ == "__main__":
     if "--dashboard" in sys.argv:
-        with open(SAMPLE, "w", encoding="utf-8") as fh:
-            fh.write(dashboard_html())
-        print("examples/dashboard-sample.html written (made-up data)")
+        for path, theme in ((SAMPLE, "classic"), (WEATHER, "weather")):
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(dashboard_html(theme))
+            print("examples/%s written (made-up data)" % os.path.basename(path))
         sys.exit(0)
     data = blocks()
     if "--update-readme" in sys.argv or "--check" in sys.argv:
         old = open(README).read()
         new = render(old, data)
         if "--check" in sys.argv:
-            try: sample_ok = open(SAMPLE, encoding="utf-8").read() == dashboard_html()
+            try:
+                sample_ok = all(open(p, encoding="utf-8").read() == dashboard_html(th)
+                                for p, th in ((SAMPLE, "classic"), (WEATHER, "weather")))
             except OSError: sample_ok = False
             if new != old:
                 sys.exit("README.md examples are out of date: run python3 examples/demo.py --update-readme")
             if not sample_ok:
-                sys.exit("examples/dashboard-sample.html is out of date: run python3 examples/demo.py --dashboard")
+                sys.exit("a sample dashboard in examples/ is out of date: run python3 examples/demo.py --dashboard")
             print("README examples and sample dashboard are up to date")
         else:
             open(README, "w").write(new)
