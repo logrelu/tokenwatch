@@ -21,16 +21,17 @@ tokenwatch reads the transcripts Claude Code already keeps on your machine
 
 ## Example
 
-One real session, as the report shows it:
+A sample session, as the report shows it (generated from made-up demo data, see `examples/demo.py`; nothing here is from a real machine):
 
+<!-- demo:session -->
 ```
-▸ 1 Oct 10:00 · 🪙 ≈$12 · 🔥 8M tokens · 120 turns · Opus 5.5
-  where it went: re-reading history $7.20 · saving history $3.90 · Claude's writing $1.10 · new input $0.05
-  💡 long chat: 60% of the cost ($7.20) was Claude re-reading the conversation, up to 210K tokens on every step. /clear when you switch tasks, /compact inside a long one.
-  💡 cold restarts: 5 times the whole conversation had to be saved again (≈$3.10), usually after a break of an hour or more. After a long break, /clear and start fresh rather than continuing a huge chat.
-  💡 plugin hooks (some-plugin) ran 400 times, ≈7 min of hook time, and added ≈1K tokens to the chat. If this project doesn't use that plugin, turn it off in /plugins.
-  💡 model: this ran on Opus 5.5. The same tokens at Sonnet 5.5 prices come to ≈$2.40: /model sonnet for routine work.
+▸ 1 Oct 10:03 · 🪙 ≈$9.75 · 🔥 22M tokens · 120 turns · Opus 5.5
+  where it went: re-reading history $4.20 · saving history $4.69 · Claude's writing $0.85 · new input $0.00
+  💡 long chat: 43% of the cost ($4.20) was Claude re-reading the conversation, up to 210K tokens on every step. /clear when you switch tasks, /compact inside a long one.
+  💡 cold restarts: 2 times the whole conversation had to be saved again (≈$2.10), usually after a break of an hour or more. After a long break, /clear and start fresh rather than continuing a huge chat.
+  💡 plugin hooks (some-plugin) ran 480 times, ≈9 min of hook time, and added ≈4K tokens to the chat. If this project doesn't use that plugin, turn it off in /plugins.
 ```
+<!-- /demo:session -->
 
 What it is telling you:
 
@@ -42,8 +43,9 @@ What it is telling you:
   re-read it cheaply. *Claude's writing* is the replies and code. *New input* is the
   small remainder that is read once without being saved.
 - **💡 lines** — every suggestion that applies, biggest saving first, each with the
-  number behind it. Here: the chat was too long, it was resumed after long breaks five
-  times, a plugin ran on nearly every action, and a cheaper model would have cost a fifth.
+  number behind it. Here: the chat was too long, it was resumed after long breaks twice
+  (the whole conversation had to be saved again), and a plugin's hooks ran hundreds of times.
+  (The CLI report below also shows the "cheaper model" tip, on a short Opus session.)
 
 ## How to read it (no dev knowledge needed)
 
@@ -97,22 +99,27 @@ python3 tokenwatch.py              # all projects, most expensive first
 python3 tokenwatch.py --project myapp
 ```
 
+<!-- demo:report -->
 ```
 🤖 ━━ ~/Desktop/myapp
-   🪙 ≈$14 · 🔥 9M tokens burnt · 2 session(s) · 140 turns
-   out 291K · in 32K · cache w 2M / r 8M
+   🪙 ≈$15.57 · 🔥 23M tokens burnt · 2 session(s) · 140 turns
+   out 312K · in 820 · cache w 989K / r 22M
    ⚠ heavy session start: ~51K tokens of context are loaded before any work happens. That's tool lists, connectors, plugins and CLAUDE.md. Prune what this project doesn't use.
-   ◦ MCP actually used here: some-server (6x). Any other connected server is pure context overhead for this project.
+   ◦ MCP actually used here: some-server (10x). Any other connected server is pure context overhead for this project.
 
-   ▸ 2 Oct 09:30 · 🪙 ≈$2.10 · 🔥 1M tokens · 20 turns · Opus 5.5
-     where it went: re-reading history $0.30 · saving history $1.20 · Claude's writing $0.60 · new input $0.00
-     💡 model: this ran on Opus 5.5. The same tokens at Sonnet 5.5 prices come to ≈$0.50: /model sonnet for routine work.
+   ▸ 2 Oct 09:34 · 🪙 ≈$5.82 · 🔥 1M tokens · 20 turns · Opus 5.5
+     where it went: re-reading history $0.17 · saving history $0.25 · Claude's writing $5.40 · new input $0.00
+     💡 model: this ran on Opus 5.5. The same tokens at Sonnet 5.5 prices come to ≈$2.99: /model sonnet for routine work.
 
-   ▸ 1 Oct 10:00 · 🪙 ≈$12 · 🔥 8M tokens · 120 turns · Opus 5.5
-     ...the session from the example above...
+   ▸ 1 Oct 10:03 · 🪙 ≈$9.75 · 🔥 22M tokens · 120 turns · Opus 5.5
+     where it went: re-reading history $4.20 · saving history $4.69 · Claude's writing $0.85 · new input $0.00
+     💡 long chat: 43% of the cost ($4.20) was Claude re-reading the conversation, up to 210K tokens on every step. /clear when you switch tasks, /compact inside a long one.
+     💡 cold restarts: 2 times the whole conversation had to be saved again (≈$2.10), usually after a break of an hour or more. After a long break, /clear and start fresh rather than continuing a huge chat.
+     💡 plugin hooks (some-plugin) ran 480 times, ≈9 min of hook time, and added ≈4K tokens to the chat. If this project doesn't use that plugin, turn it off in /plugins.
 
-🤖 ═══ all projects: 🪙 ≈$14 at API list prices · 🔥 9M tokens burnt
+🤖 ═══ all projects: 🪙 ≈$15.57 at API list prices · 🔥 23M tokens burnt
 ```
+<!-- /demo:report -->
 
 Add `--json` for machine-readable output (totals, per-project and per-session numbers, tips),
 for spreadsheets, dashboards or scripts:
@@ -139,10 +146,18 @@ python3 tokenwatch.py --daily --week --project myapp
 python3 tokenwatch.py --daily --since 2026-10-01 --json
 ```
 
+<!-- demo:daily -->
 ```
-📈 ▁▁▃█▂▁▃  27 Oct → 02 Nov
-   Tue 03 Nov    $14.82  ████████████████████  🔥 busiest
+📈 █▅▁▁▁▁▁  01 Oct → 07 Oct
+   Thu 01 Oct     $9.75  ████████████████████  🔥 busiest
+   Fri 02 Oct     $5.82  ████████████
+   Sat 03 Oct     $0.36  █
+   Sun 04 Oct     $0.00  
+   Mon 05 Oct     $0.00  
+   Tue 06 Oct     $0.00  
+   Wed 07 Oct     $0.00  
 ```
+<!-- /demo:daily -->
 
 Cost per calendar day, zero-filled, with a sparkline on top. Each reply counts on the day it
 happened, so a session that runs past midnight is split. Nothing is stored: the history is the
@@ -151,13 +166,15 @@ transcripts Claude Code already keeps.
 ### Budget
 
 ```
-python3 tokenwatch.py --budget 20 --period week      # period: day | week | month
-export TOKENWATCH_BUDGET=20/week                     # or set it once; the flag wins
+python3 tokenwatch.py --budget 25 --period week      # period: day | week | month
+export TOKENWATCH_BUDGET=25/week                     # or set it once; the flag wins
 ```
 
+<!-- demo:budget -->
 ```
-💰 last 7 days: $14.20 of $20.00 budget (71%) ▓▓▓▓▓▓▓░░░ 😺 on track
+💰 last 7 days: $15.93 of $25.00 budget (64%) ▓▓▓▓▓▓░░░░ 😺 on track
 ```
+<!-- /demo:budget -->
 
 `week` is the last 7 days, `month` is the calendar month so far. The budget counts everything you
 spent, ignoring `--project` and the date filters. 😺 on track, 😿 at 80%, 🙀 over. It also appears
