@@ -74,7 +74,8 @@ one sitting.
 ```
 
 This gives you the session greeting automatically, `/tokenwatch:report [--project NAME]`
-for the full report, `/tokenwatch:dashboard` to open the dashboard in your browser, and
+for the full report, `/tokenwatch:dashboard` to open the dashboard in your browser,
+`/tokenwatch:budget 25/week` to save a budget, and
 `/tokenwatch:setup` for the statusline (plugins can't enable
 a statusline on their own, so setup writes it to `~/.claude/settings.json`). Run setup once: the
 statusline it writes always starts the newest installed tokenwatch, so it keeps working after updates. The manual setup below still works if you'd rather not use the plugin.
@@ -180,8 +181,9 @@ transcripts Claude Code already keeps.
 ### Budget
 
 ```
-python3 tokenwatch.py --budget 25 --period week      # period: day | week | month
-export TOKENWATCH_BUDGET=25/week                     # or set it once; the flag wins
+/tokenwatch:budget 25/week                           # in Claude Code: set it once, used everywhere
+python3 tokenwatch.py --budget 25/week --save        # the same from a terminal
+python3 tokenwatch.py --budget 25 --period week      # just for this run; period: day | week | month
 ```
 
 <!-- demo:budget -->
@@ -192,8 +194,24 @@ export TOKENWATCH_BUDGET=25/week                     # or set it once; the flag 
 
 `week` is the last 7 days, `month` is the calendar month so far. The budget counts everything you
 spent, ignoring `--project` and the date filters. 😺 on track, 😿 at 80%, 🙀 over. It also appears
-in `--json` as `budget`, and in the session greeting when `TOKENWATCH_BUDGET` is set. As everywhere,
+in `--json` as `budget`, and in the session greeting once a budget is saved. As everywhere,
 the dollar figure is at API list prices: on a Pro/Max plan read it as how fast you use your limit.
+
+### Saved settings
+
+Set your budget and dashboard theme once instead of typing them every time:
+
+```
+python3 tokenwatch.py --budget 25/week --save        # or /tokenwatch:budget 25/week
+python3 tokenwatch.py --theme weather --save         # dashboards use the weather theme from now on
+python3 tokenwatch.py --save                         # show what is saved
+python3 tokenwatch.py --budget off --save            # forget the budget (--theme classic --save for the theme)
+```
+
+They are kept in `~/.config/tokenwatch/config.json` (or `$XDG_CONFIG_HOME/tokenwatch/config.json`), a small
+file you can read or delete; tokenwatch never writes inside `~/.claude`. The report, dashboard and session
+greeting all use them. A flag on the command line wins for that run, then the `TOKENWATCH_BUDGET=25/week`
+environment variable, then the saved value.
 
 ### Dashboard
 

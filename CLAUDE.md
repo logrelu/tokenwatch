@@ -21,10 +21,11 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/usage.py` | `new_usage`, `context_of`, `plugin_hook`: reading one transcript line. |
 | `twlib/tips.py` | `top_tip`, `session_tips`, `advise`: the plain-English suggestions. |
 | `twlib/live.py` | Live-session state shared by `statusline.py` and `pet.py`. |
-| `twlib/config.py` | `HOME`, `PROJECTS`, `SETTINGS` (read-only), `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
+| `twlib/config.py` | `HOME`, `PROJECTS`, `SETTINGS` (read-only), `PREFS`, `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
 | `twlib/dates.py` | `session_date`, `date_range`, `period_range`. |
 | `twlib/scan.py` | `scan_session`, `scan_project`, `project_name`: transcripts to numbers. |
-| `twlib/budget.py` | Budget parsing, status and the printed line. |
+| `twlib/budget.py` | Budget parsing, status and the printed line. Order: `--budget` flag, then `TOKENWATCH_BUDGET`, then the saved budget. |
+| `twlib/prefs.py` | Saved settings (`budget`, `theme`) in `config.PREFS` (`~/.config/tokenwatch/config.json`). Validated on save and on load; a bad file counts as empty. The only file tokenwatch writes besides dashboards. Tests redirect `config.PREFS` in `tests/__init__.py`. |
 | `twlib/trend.py` | Daily totals, sparkline, trend table. |
 | `twlib/report.py` | JSON-serialisable session/project summaries. |
 | `examples/demo.py` | Builds FAKE transcripts and renders the README examples with the real CLI. `--update-readme` rewrites the `<!-- demo:NAME -->` blocks, `--dashboard` rewrites `examples/dashboard-sample.html`, `--check` (run in the tests) verifies both. |
@@ -38,7 +39,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `statusline.py` | Claude Code statusline. Tails the transcript incrementally; state cached in `/tmp/tokenwatch-*.json`. |
 | `sessionstart.py` | SessionStart hook: one line about the previous session. |
 | `pet.py` | Long-running animated cat for a second terminal. |
-| `commands/*.md` | Plugin slash commands (`report`, `dashboard`, `setup`, `pet`). Commands that run a script use a `` !`...` `` line and repeat the command in plain text, because some apps (Claude Desktop) don't run that line. |
+| `commands/*.md` | Plugin slash commands (`report`, `dashboard`, `budget`, `setup`, `pet`). Commands that run a script use a `` !`...` `` line and repeat the command in plain text, because some apps (Claude Desktop) don't run that line. |
 | `hooks/hooks.json` | Registers the SessionStart hook for plugin installs. |
 | `.claude-plugin/` | Plugin and marketplace manifests. Bump `version` in `plugin.json` on user-visible changes. |
 

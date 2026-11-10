@@ -1,8 +1,9 @@
 """The tokenwatch command line: argument parsing and report printing."""
 import glob, json, os, pathlib, sys, webbrowser
 from datetime import date, timedelta
-from twlib import args, config, dashboard
+from twlib import args, config, dashboard, prefs
 from twlib.budget import parse_budget, spend_between, budget_status, budget_line
+from twlib.prefs import budget_text
 from twlib.dates import date_range, period_range
 from twlib.fmt import fmt, money, nice, when
 from twlib.report import project_summary
@@ -49,7 +50,7 @@ def export(frag, since, until):
     try: budget = parse_budget(sys.argv)
     except (ValueError, IndexError):
         sys.exit("tokenwatch: --budget needs a positive amount (e.g. --budget 20 --period week|day|month)")
-    theme = arg("--theme", "classic")
+    theme = arg("--theme") or prefs.load().get("theme", "classic")
     if theme not in dashboard.THEMES:
         sys.exit("tokenwatch: --theme must be one of: " + ", ".join(dashboard.THEMES))
     try: data = dashboard.collect(frag, since, until, budget)
@@ -62,8 +63,34 @@ def export(frag, since, until):
         except Exception: opened = False
         print("   opened in your browser" if opened else "   couldn't start a browser here; open the file above yourself")
 
+SAVABLE = {"--save", "--budget", "--period", "--theme"}
+
+
+def save_settings():
+    """--save: remember --budget/--period and --theme (None forgets), or show what is saved."""
+    extra = [a for a in sys.argv[1:] if a.startswith("--") and a not in SAVABLE]
+    if extra: sys.exit("tokenwatch: --save only remembers --budget and --theme (drop %s)" % " ".join(extra))
+    changes = {}
+    if "--budget" in sys.argv:
+        if arg("--budget").lower() in ("off", "none"): changes["budget"] = None
+        else:
+            try: changes["budget"] = budget_text(*parse_budget(sys.argv, env={}, saved={}))
+            except (ValueError, IndexError):
+                sys.exit("tokenwatch: --budget needs a positive amount and a period of day, week or month "
+                         "(e.g. --budget 25/week, or --budget off)")
+    if "--theme" in sys.argv:
+        theme = arg("--theme")
+        if theme not in dashboard.THEMES:
+            sys.exit("tokenwatch: --theme must be one of: " + ", ".join(dashboard.THEMES))
+        changes["theme"] = None if theme == "classic" else theme
+    try: data = prefs.save(changes) if changes else prefs.load()
+    except OSError as e: sys.exit("tokenwatch: cannot save settings to %s: %s" % (config.PREFS, e.strerror))
+    print(f"🤖 saved settings: {prefs.describe(data)}\n   kept in {config.PREFS}")
+
+
 def main():
     args.check(sys.argv)
+    if "--save" in sys.argv: return save_settings()
     frag, show = arg("--project"), int(arg("--sessions", 5))
     try: since, until = date_range(sys.argv)
     except (ValueError, IndexError):
