@@ -15,12 +15,19 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 
 | File | Role |
 |---|---|
-| `tokenwatch.py` | CLI entry point and compatibility shim: scanning, budget, trend and `main()` still live here for now, and every `twlib` name is re-exported so existing imports keep working. |
+| `tokenwatch.py` | Thin entry point and compatibility shim. Re-exports every `twlib` name so `from tokenwatch import ...` keeps working. |
 | `twlib/fmt.py` | `fmt`, `money`, `nice`, `when` formatting helpers. |
 | `twlib/pricing.py` | `KINDS`, `PRICES`, `cost_parts`, `cost_of`. Update `PRICES` when prices change. |
 | `twlib/usage.py` | `new_usage`, `context_of`, `plugin_hook`: reading one transcript line. |
 | `twlib/tips.py` | `top_tip`, `session_tips`, `advise`: the plain-English suggestions. |
 | `twlib/live.py` | Live-session state shared by `statusline.py` and `pet.py`. |
+| `twlib/config.py` | `HOME`, `PROJECTS`. Read as `config.PROJECTS` so tests can redirect it. |
+| `twlib/dates.py` | `session_date`, `date_range`, `period_range`. |
+| `twlib/scan.py` | `scan_session`, `scan_project`, `project_name`: transcripts to numbers. |
+| `twlib/budget.py` | Budget parsing, status and the printed line. |
+| `twlib/trend.py` | Daily totals, sparkline, trend table. |
+| `twlib/report.py` | JSON-serialisable session/project summaries. |
+| `twlib/cli.py` | Argument parsing and report printing (`main`). |
 | `statusline.py` | Claude Code statusline. Tails the transcript incrementally; state cached in `/tmp/tokenwatch-*.json`. |
 | `sessionstart.py` | SessionStart hook: one line about the previous session. |
 | `pet.py` | Long-running animated cat for a second terminal. |
@@ -36,7 +43,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
   Unknown models cost 0. Update `PRICES` when prices change.
 - Cache writes are 1.25x input price (5-minute cache) or 2x (1-hour cache).
 - `statusline.py`, `pet.py` and `sessionstart.py` import from `tokenwatch`/`twlib`, so keep imports free of side
-  effects (`main()` only runs under `__main__`). `twlib` modules must not import `tokenwatch` (no cycles).
+  effects (`main()` only runs under `__main__`). Tests redirect transcripts with `twlib.config.PROJECTS`, never the real folder. `twlib` modules must not import `tokenwatch` (no cycles).
 
 ## Running
 
