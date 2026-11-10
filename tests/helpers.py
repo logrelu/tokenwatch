@@ -1,7 +1,8 @@
 """Shared test helpers: synthetic transcripts and a CLI runner that never touches real data."""
 import contextlib, io, json, os, shutil, sys, tempfile
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
 import tokenwatch as tw
 from twlib import config
 

@@ -41,6 +41,10 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 
 ## Things to know
 
+- **Every CLI option must be registered in `twlib/cli.py` (`FLAGS`).** Unknown options exit with status 2 and a
+  did-you-mean hint instead of being ignored. Add new flags to `FLAGS` (and `--help`) or they will be rejected.
+  `pet.py` has its own options and does not use this check.
+
 - Claude Code writes one transcript line per content block and repeats the reply's `usage` on each,
   so replies are counted once by message id (`new_usage`).
 - Costs are estimates at public list prices (`PRICES`, matched by prefix, most specific first).

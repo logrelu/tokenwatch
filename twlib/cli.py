@@ -1,7 +1,7 @@
 """The tokenwatch command line: argument parsing and report printing."""
 import glob, json, os, sys
 from datetime import date, timedelta
-from twlib import config, dashboard
+from twlib import args, config, dashboard
 from twlib.budget import parse_budget, spend_between, budget_status, budget_line
 from twlib.dates import date_range, period_range
 from twlib.fmt import fmt, money, nice, when
@@ -34,6 +34,7 @@ def export(frag, since, until):
     print(f"🤖 dashboard written to {path}\n   it contains your project names; don't share it publicly")
 
 def main():
+    args.check(sys.argv)
     frag, show = arg("--project"), int(arg("--sessions", 5))
     try: since, until = date_range(sys.argv)
     except (ValueError, IndexError):
