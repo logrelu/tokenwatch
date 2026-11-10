@@ -167,7 +167,8 @@ def scan_session(f):
     s = dict(file=f, start="", turns=0, cost=0.0, tokens={k: 0 for k in KINDS},
              spent={"read": 0.0, "write": 0.0, "out": 0.0, "in": 0.0}, as_cheaper=0.0,
              peak=0, context=0, first_write=0, model="", rebuilds=0, rebuild_cost=0.0,
-             hook_runs=0, hook_secs=0.0, hook_chars=0, plugins=set(), bash=[], mcp=defaultdict(int))
+             hook_runs=0, hook_secs=0.0, hook_chars=0, plugins=set(), bash=[], mcp=defaultdict(int),
+             daily=defaultdict(float))
     seen = []
     with open(f, errors="ignore") as fh:
         lines = fh.readlines()
@@ -188,6 +189,8 @@ def scan_session(f):
             s["cost"] += sum(parts.values())
             s["as_cheaper"] += cost_of(CHEAPER, u)
             for k in parts: s["spent"][k] += parts[k]
+            day = session_date(d.get("timestamp") or "")
+            if day: s["daily"][day] += sum(parts.values())
             for k in KINDS: s["tokens"][k] += u.get(k, 0)
             if model.startswith("claude"): s["model"] = model
             s["context"] = context_of(u); s["peak"] = max(s["peak"], s["context"])
@@ -245,6 +248,47 @@ def date_range(argv, today=None):
     if "--today" in argv: since = until = today
     if "--week" in argv: since, until = today - timedelta(days=6), today
     return since, until
+
+PERIODS = ("day", "week", "month")
+
+def period_range(period, today=None):
+    """(first day, last day) of the budget period that contains today: today, the last 7 days,
+    or the calendar month so far."""
+    today = today or date.today()
+    if period == "day": return today, today
+    if period == "week": return today - timedelta(days=6), today
+    return today.replace(day=1), today
+
+def parse_budget(argv, env=None):
+    """(amount, period) from `--budget 20 [--period week]` or TOKENWATCH_BUDGET=20/week, else None.
+    Raises ValueError on a bad amount or period."""
+    env = os.environ if env is None else env
+    raw, period = None, "week"
+    if "--budget" in argv:
+        raw = argv[argv.index("--budget") + 1]
+        if "--period" in argv: period = argv[argv.index("--period") + 1]
+    elif env.get("TOKENWATCH_BUDGET"):
+        raw, _, p = env["TOKENWATCH_BUDGET"].partition("/")
+        period = p or period
+    if raw is None: return None
+    amount = float(raw)
+    if amount <= 0 or period not in PERIODS: raise ValueError("bad budget")
+    return amount, period
+
+def spend_between(sessions, since, until):
+    """Total cost of all replies dated within [since, until]."""
+    return sum(c for x in sessions for d, c in x["daily"].items() if since <= d <= until)
+
+def budget_status(spent, amount, period):
+    return {"period": period, "budget": amount, "spent": round(spent, 4), "used": round(spent / amount, 4),
+            "level": "over" if spent >= amount else "warn" if spent >= 0.8 * amount else "ok"}
+
+def budget_line(b, width=10):
+    filled = min(width, int(b["used"] * width))
+    bar = "▓" * filled + "░" * (width - filled)
+    mood = {"over": "🙀 over budget", "warn": "😿 nearly there", "ok": "😺 on track"}[b["level"]]
+    where = {"day": "today", "week": "last 7 days", "month": "this month"}[b["period"]]
+    return f"💰 {where}: {money(b['spent'])} of {money(b['budget'])} budget ({b['used']:.0%}) {bar} {mood}"
 
 def scan_project(pdir, since=None, until=None):
     sessions = [scan_session(f) for f in sorted(glob.glob(os.path.join(pdir, "*.jsonl")))]
@@ -318,9 +362,18 @@ def main():
         if p["turns"] == 0: continue
         rows.append((p["cost"], name, p))
     rows.sort(key=lambda r: -r[0])
+    try: budget = parse_budget(sys.argv)
+    except (ValueError, IndexError):
+        sys.exit("tokenwatch: --budget needs a positive amount (e.g. --budget 20 --period week|day|month)")
+    b = None
+    if budget:
+        lo, hi = period_range(budget[1])
+        # a budget covers everything you spent, so ignore --project and the date filters here
+        everything = [scan_session(f) for f in glob.glob(os.path.join(PROJECTS, "*", "*.jsonl"))]
+        b = budget_status(spend_between(everything, lo, hi), *budget)
     if "--json" in sys.argv:
         print(json.dumps({"total_cost": round(sum(r[0] for r in rows), 4),
-                          "total_tokens": sum(sum(r[2]["stats"].values()) for r in rows),
+                          "total_tokens": sum(sum(r[2]["stats"].values()) for r in rows), "budget": b,
                           "projects": [project_summary(n, p, show) for _, n, p in rows]}, indent=2))
         return
     grand = burnt = 0
@@ -341,6 +394,7 @@ def main():
                   f"Claude's writing {money(sp['out'])} · new input {money(sp['in'])}")
             for t in session_tips(x) or ["✓ nothing to fix"]: print(f"     💡 {t}" if t[0] != "✓" else f"     😺 {t[2:]}")
         if len(done) > show: print(f"\n   (+{len(done) - show} older session(s): --sessions {len(done)})")
+    if b: print(f"\n{budget_line(b)}")
     print(f"\n🤖 ═══ all projects: 🪙 ≈{money(grand)} at API list prices · 🔥 {fmt(burnt)} tokens burnt")
 
 if __name__ == "__main__":

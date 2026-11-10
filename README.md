@@ -119,6 +119,22 @@ python3 tokenwatch.py --since 2026-10-01 --until 2026-10-31
 
 Works together with `--project` and `--json`.
 
+### Budget
+
+```
+python3 tokenwatch.py --budget 20 --period week      # period: day | week | month
+export TOKENWATCH_BUDGET=20/week                     # or set it once; the flag wins
+```
+
+```
+💰 last 7 days: $14.20 of $20.00 budget (71%) ▓▓▓▓▓▓▓░░░ 😺 on track
+```
+
+`week` is the last 7 days, `month` is the calendar month so far. The budget counts everything you
+spent, ignoring `--project` and the date filters. 😺 on track, 😿 at 80%, 🙀 over. It also appears
+in `--json` as `budget`, and in the session greeting when `TOKENWATCH_BUDGET` is set. As everywhere,
+the dollar figure is at API list prices: on a Pro/Max plan read it as how fast you use your limit.
+
 Projects are listed most expensive first. Each starts with its totals and the
 project-wide suggestions, then its 5 most recent sessions (`--sessions 20` for more)
 in the format shown in the example.
