@@ -12,7 +12,11 @@ from twlib.pricing import CHEAPER, KINDS, PRICES
 
 VERSION = 1     # bump whenever scan_session's output changes, so old entries aren't reused
 
-STAMP = "%d-%s" % (VERSION, hashlib.sha1(repr((PRICES, CHEAPER, KINDS)).encode()).hexdigest()[:12])
+def make_stamp(prices=PRICES, cheaper=CHEAPER, kinds=KINDS, version=VERSION):
+    """Identifies the code and prices a cache was built with; any change means a full rescan."""
+    return "%d-%s" % (version, hashlib.sha1(repr((prices, cheaper, kinds)).encode()).hexdigest()[:12])
+
+STAMP = make_stamp()
 
 _mem = {"path": None, "entries": {}, "dirty": False, "hooked": False}
 
@@ -40,12 +44,12 @@ def _entries():
 
 
 def encode(s):
-    """A scan_session() dict as JSON-safe data."""
+    """A scan_session() dict as JSON-safe data, sharing nothing with `s` (callers may change their copy)."""
     out = dict(s)
     out["plugins"] = sorted(s["plugins"])
     out["mcp"] = dict(s["mcp"])
     out["daily"] = {d.isoformat(): v for d, v in s["daily"].items()}
-    return out
+    return json.loads(json.dumps(out))
 
 
 def decode(d):
