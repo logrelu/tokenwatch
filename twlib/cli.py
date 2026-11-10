@@ -27,9 +27,12 @@ def export(frag, since, until):
     try: budget = parse_budget(sys.argv)
     except (ValueError, IndexError):
         sys.exit("tokenwatch: --budget needs a positive amount (e.g. --budget 20 --period week|day|month)")
+    theme = arg("--theme", "classic")
+    if theme not in dashboard.THEMES:
+        sys.exit("tokenwatch: --theme must be one of: " + ", ".join(dashboard.THEMES))
     try: data = dashboard.collect(frag, since, until, budget)
     except ValueError: sys.exit("tokenwatch: --since is after --until")
-    try: dashboard.write_dashboard(path, data)
+    try: dashboard.write_dashboard(path, data, theme)
     except OSError as e: sys.exit("tokenwatch: cannot write %s: %s" % (path, e.strerror))
     print(f"🤖 dashboard written to {path}\n   it contains your project names; don't share it publicly")
 
