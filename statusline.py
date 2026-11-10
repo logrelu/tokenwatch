@@ -4,6 +4,7 @@ Reads the statusline JSON on stdin, incrementally tails the transcript (state
 cached in /tmp so each refresh only parses new lines). All local, no network."""
 import json, os, sys, hashlib, time, shutil
 from tokenwatch import fmt, money, top_tip, new_live_state, ingest, update_rate, mood_of
+from twlib.budget import live_budget, budget_segment
 
 try: sys.stdout.reconfigure(errors="replace")
 except Exception: pass
@@ -69,6 +70,9 @@ try: json.dump(state, open(state_file, "w"))
 except Exception: pass
 
 parts = [f"{E('🤖', '$')} {E('≈', '~')}{money(state['cost'])}", f"{E('🔥', 'tok')} {fmt(sum(state['sums'].values()))} tokens burnt", f"{state['turns']} turns"]
+COLOR = os.environ.get("NO_COLOR") is None and os.environ.get("TOKENWATCH_COLOR") != "0"
+seg = budget_segment(live_budget(now), color=COLOR, utf=UTF)
+if seg: parts.append(seg)
 tip = top_tip(state["cost"], state["turns"], state["hook_runs"], state["context"], state["model"])
 if tip: parts.append(f"{E('🙀', '!')} {tip}")
 print(f" {DOT} ".join(parts))
