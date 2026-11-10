@@ -21,7 +21,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/usage.py` | `new_usage`, `context_of`, `plugin_hook`: reading one transcript line. |
 | `twlib/tips.py` | `top_tip`, `session_tips`, `advise`: the plain-English suggestions. |
 | `twlib/live.py` | Live-session state shared by `statusline.py` and `pet.py`. |
-| `twlib/config.py` | `HOME`, `PROJECTS`. Read as `config.PROJECTS` so tests can redirect it. |
+| `twlib/config.py` | `HOME`, `PROJECTS`, `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
 | `twlib/dates.py` | `session_date`, `date_range`, `period_range`. |
 | `twlib/scan.py` | `scan_session`, `scan_project`, `project_name`: transcripts to numbers. |
 | `twlib/budget.py` | Budget parsing, status and the printed line. |
@@ -32,12 +32,12 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/weather.py` | `--theme weather`: renders the same `dashboard.collect()` data as a parody weather report (inline SVG icons, no images, no external resources). Mapping rules (conditions, advisories, storm names) are pure functions with tests. |
 | `examples/dashboard-sample-weather.html` | Generated weather-theme sample from fake data (`python3 examples/demo.py --dashboard`). Never edit by hand. |
 | `examples/dashboard-sample.html` | Generated sample dashboard from fake data. Never edit by hand and never commit a dashboard made from real transcripts. |
-| `twlib/cli.py` | Argument parsing and report printing (`main`). |
+| `twlib/cli.py` | Argument parsing and report printing (`main`). `--open` opens the dashboard through `cli.open_browser`; tests replace it so no real browser starts. |
 | `twlib/dashboard.py` | `--export html`: `collect()` (data dict) and `render_html()` (inline CSS/SVG page, tooltip-only script). Escape every data string with `esc()`. |
 | `statusline.py` | Claude Code statusline. Tails the transcript incrementally; state cached in `/tmp/tokenwatch-*.json`. |
 | `sessionstart.py` | SessionStart hook: one line about the previous session. |
 | `pet.py` | Long-running animated cat for a second terminal. |
-| `commands/*.md` | Plugin slash commands (`report`, `setup`, `pet`). |
+| `commands/*.md` | Plugin slash commands (`report`, `dashboard`, `setup`, `pet`). Commands that run a script use a `` !`...` `` line and repeat the command in plain text, because some apps (Claude Desktop) don't run that line. |
 | `hooks/hooks.json` | Registers the SessionStart hook for plugin installs. |
 | `.claude-plugin/` | Plugin and marketplace manifests. Bump `version` in `plugin.json` on user-visible changes. |
 
