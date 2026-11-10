@@ -60,6 +60,9 @@ Everything tokenwatch prints is built from the same three parts:
 
 The data is the transcripts Claude Code already saves at
 `~/.claude/projects/<project>/<session>.jsonl`. tokenwatch only reads them.
+Subagents (the helpers Claude starts with the Agent tool) are saved next to it in
+`<session>/subagents/`; their cost is added to the session that started them and shown
+on its line as `incl. N agents ≈$X`, so totals, budgets and the recap include them.
 
 **Everything is local.** No network calls, no telemetry, nothing leaves your
 machine. It's a few hundred lines of dependency-free Python you can read in
