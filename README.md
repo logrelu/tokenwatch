@@ -343,6 +343,19 @@ costs ~60 ms even on huge sessions.
 One line on purpose — advice about token waste shouldn't waste tokens. It carries the
 top suggestion; the full list is in the CLI report.
 
+**Weekly recap.** The first session of each week (Monday to Sunday) adds one more line about the week
+before: what it cost, how many sessions, the priciest project and how it compares with the week before that.
+
+<!-- demo:recap -->
+```
+```
+<!-- /demo:recap -->
+
+It appears once per week and only if you spent something. `python3 tokenwatch.py --recap` prints it any
+time. Turn it off with `python3 tokenwatch.py --no-recap --save` (and back on with `--recap --save`). To
+remember that it was shown, tokenwatch keeps the week's date in `~/.local/state/tokenwatch/recap.json`
+(or `$XDG_STATE_HOME/tokenwatch/recap.json`).
+
 ### Live pet (second terminal)
 
 The statusline can only refresh about once a second, so Purr can't truly animate there. `pet.py` is a
