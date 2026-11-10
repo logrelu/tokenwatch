@@ -102,6 +102,13 @@ python3 tokenwatch.py --project myapp
 🤖 ═══ all projects: 🪙 ≈$14 at API list prices · 🔥 9M tokens burnt
 ```
 
+Add `--json` for machine-readable output (totals, per-project and per-session numbers, tips),
+for spreadsheets, dashboards or scripts:
+
+```
+python3 tokenwatch.py --json --sessions 3 | jq '.projects[].cost'
+```
+
 Projects are listed most expensive first. Each starts with its totals and the
 project-wide suggestions, then its 5 most recent sessions (`--sessions 20` for more)
 in the format shown in the example.
