@@ -15,6 +15,7 @@ from datetime import date, datetime, timedelta, timezone
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 os.environ["TZ"] = "UTC"
+os.environ["TOKENWATCH_CACHE"] = "off"     # fake transcripts never go into your scan cache
 time.tzset()
 
 import tokenwatch as tw

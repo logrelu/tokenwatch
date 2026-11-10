@@ -1,6 +1,7 @@
 """Scanning transcripts into per-session and per-project numbers."""
 import glob, json, os
 from collections import defaultdict
+from twlib import cache
 from twlib.config import HOME
 from twlib.dates import session_date
 from twlib.pricing import KINDS, CHEAPER, cost_parts, cost_of
@@ -21,7 +22,16 @@ def last_modified(f):
     return max(times)
 
 def scan_session(f):
-    """Everything tokenwatch knows about one session transcript, including the subagents it started."""
+    """Everything tokenwatch knows about one session transcript, including the subagents it started.
+    Served from the scan cache when neither the transcript nor its subagents changed since last time."""
+    sig = cache.signature([f] + subagent_files(f))          # taken before reading, so a write mid-scan is
+    hit = cache.get(f, sig)                                 # seen as a change next time
+    if hit is not None: return hit
+    s = _scan_uncached(f)
+    cache.put(f, sig, s)
+    return s
+
+def _scan_uncached(f):
     s = dict(file=f, start="", turns=0, cost=0.0, tokens={k: 0 for k in KINDS},
              spent={"read": 0.0, "write": 0.0, "out": 0.0, "in": 0.0}, as_cheaper=0.0,
              peak=0, context=0, first_write=0, model="", rebuilds=0, rebuild_cost=0.0,

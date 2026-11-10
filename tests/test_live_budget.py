@@ -112,7 +112,7 @@ class Statusline(LiveCase):
             os.makedirs(os.path.join(home, ".config", "tokenwatch"), exist_ok=True)
             with open(os.path.join(home, ".config", "tokenwatch", "config.json"), "w") as fh:
                 json.dump({"budget": budget}, fh)
-        env = {k: v for k, v in os.environ.items() if k not in ("TOKENWATCH_BUDGET", "NO_COLOR", "XDG_CONFIG_HOME")}
+        env = {k: v for k, v in os.environ.items() if k not in ("TOKENWATCH_BUDGET", "NO_COLOR", "XDG_CONFIG_HOME", "XDG_CACHE_HOME")}
         tmpdir = os.path.join(self.tmp, "t")
         os.makedirs(tmpdir, exist_ok=True)
         env.update(HOME=home, TMPDIR=tmpdir, COLUMNS="200", PYTHONIOENCODING="utf-8")
