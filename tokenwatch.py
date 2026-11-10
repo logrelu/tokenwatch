@@ -3,7 +3,7 @@
 
 Everything is local: ~/.claude/projects/**/*.jsonl never leaves this machine.
 Run: python3 tokenwatch.py [--project <name-fragment>] [--sessions <how many per project>] [--json]
-     [--today | --week | --since YYYY-MM-DD [--until YYYY-MM-DD]]
+     [--today | --week | --since YYYY-MM-DD [--until YYYY-MM-DD]] [--daily]
 """
 import json, glob, os, re, sys
 from collections import defaultdict
@@ -290,6 +290,34 @@ def budget_line(b, width=10):
     where = {"day": "today", "week": "last 7 days", "month": "this month"}[b["period"]]
     return f"💰 {where}: {money(b['spent'])} of {money(b['budget'])} budget ({b['used']:.0%}) {bar} {mood}"
 
+SPARK = "▁▂▃▄▅▆▇█"
+
+def sparkline(values):
+    """One block character per value, scaled to the largest (all-zero stays at the lowest block)."""
+    top = max(values, default=0)
+    if top <= 0: return SPARK[0] * len(values)
+    return "".join(SPARK[int(v / top * (len(SPARK) - 1) + 0.5)] for v in values)
+
+def daily_totals(sessions, since, until):
+    """[(day, cost)] for every calendar day from since to until inclusive, zero-filled."""
+    out, d = [], since
+    while d <= until:
+        out.append((d, sum(x["daily"].get(d, 0.0) for x in sessions)))
+        d += timedelta(days=1)
+    return out
+
+def trend_lines(days):
+    """Printable per-day table headed by a sparkline, busiest day marked."""
+    top = max((c for _, c in days), default=0)
+    lines = [f"📈 {sparkline([c for _, c in days])}  {days[0][0]:%d %b} → {days[-1][0]:%d %b}"]
+    for d, c in days:
+        bar = "█" * (int(c / top * 20 + 0.5) if top else 0)
+        lines.append(f"   {d:%a %d %b}  {money(c):>8}  {bar}" + ("  🔥 busiest" if top and c == top else ""))
+    return lines
+
+def project_name(pdir):
+    return os.path.basename(pdir).replace("-Users-" + os.path.basename(HOME) + "-", "~/").replace("-", "/")
+
 def scan_project(pdir, since=None, until=None):
     sessions = [scan_session(f) for f in sorted(glob.glob(os.path.join(pdir, "*.jsonl")))]
     if since or until:
@@ -356,12 +384,27 @@ def main():
     rows = []
     for pdir in sorted(glob.glob(os.path.join(PROJECTS, "*"))):
         if not os.path.isdir(pdir): continue
-        name = os.path.basename(pdir).replace("-Users-" + os.path.basename(HOME) + "-", "~/").replace("-", "/")
+        name = project_name(pdir)
         if frag and frag.lower() not in name.lower(): continue
         p = scan_project(pdir, since, until)
         if p["turns"] == 0: continue
         rows.append((p["cost"], name, p))
     rows.sort(key=lambda r: -r[0])
+    if "--daily" in sys.argv:
+        today = date.today()
+        lo, hi = since or today - timedelta(days=13), until or today
+        if lo > hi: sys.exit("tokenwatch: --since is after --until")
+        mine = [scan_session(f) for d in glob.glob(os.path.join(PROJECTS, "*")) if os.path.isdir(d)
+                and (not frag or frag.lower() in project_name(d).lower())
+                for f in glob.glob(os.path.join(d, "*.jsonl"))]
+        days = daily_totals(mine, lo, hi)
+        if "--json" in sys.argv:
+            print(json.dumps({"days": [{"date": d.isoformat(), "cost": round(c, 4)} for d, c in days],
+                              "total_cost": round(sum(c for _, c in days), 4)}, indent=2))
+        else:
+            print("\n".join(trend_lines(days)))
+            print(f"\n🤖 {len(days)} days: 🪙 ≈{money(sum(c for _, c in days))} at API list prices")
+        return
     try: budget = parse_budget(sys.argv)
     except (ValueError, IndexError):
         sys.exit("tokenwatch: --budget needs a positive amount (e.g. --budget 20 --period week|day|month)")

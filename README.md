@@ -119,6 +119,23 @@ python3 tokenwatch.py --since 2026-10-01 --until 2026-10-31
 
 Works together with `--project` and `--json`.
 
+### Daily trend
+
+```
+python3 tokenwatch.py --daily                    # last 14 days
+python3 tokenwatch.py --daily --week --project myapp
+python3 tokenwatch.py --daily --since 2026-10-01 --json
+```
+
+```
+📈 ▁▁▃█▂▁▃  27 Oct → 02 Nov
+   Tue 03 Nov    $14.82  ████████████████████  🔥 busiest
+```
+
+Cost per calendar day, zero-filled, with a sparkline on top. Each reply counts on the day it
+happened, so a session that runs past midnight is split. Nothing is stored: the history is the
+transcripts Claude Code already keeps.
+
 ### Budget
 
 ```
