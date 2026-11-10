@@ -152,6 +152,23 @@ spent, ignoring `--project` and the date filters. 😺 on track, 😿 at 80%, �
 in `--json` as `budget`, and in the session greeting when `TOKENWATCH_BUDGET` is set. As everywhere,
 the dollar figure is at API list prices: on a Pro/Max plan read it as how fast you use your limit.
 
+### Dashboard
+
+```
+python3 tokenwatch.py --export html                  # ./tokenwatch-dashboard.html
+python3 tokenwatch.py --export html ~/Desktop/tw.html --week --budget 20
+```
+
+Writes one self-contained HTML file you can double-click: total cost, tokens, sessions and turns, cost
+per day (last 14 days, or your `--since`/`--until`/`--today`/`--week` range, with a budget-pace line
+when a budget is set), cost by project, where the money went, the top sessions and the tips. Every chart
+has a "Show as table" view. `--project` and `--budget` work as in the report. It follows your light/dark
+setting and fits a phone.
+
+It is fully local: inline CSS and SVG, a tiny inline script for hover tooltips, no network, no external
+fonts or scripts. The file lists your real project names, so don't share or commit it. tokenwatch
+refuses to write it inside its own checkout by default.
+
 Projects are listed most expensive first. Each starts with its totals and the
 project-wide suggestions, then its 5 most recent sessions (`--sessions 20` for more)
 in the format shown in the example.

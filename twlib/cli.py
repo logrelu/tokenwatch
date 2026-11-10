@@ -1,7 +1,7 @@
 """The tokenwatch command line: argument parsing and report printing."""
 import glob, json, os, sys
 from datetime import date, timedelta
-from twlib import config
+from twlib import config, dashboard
 from twlib.budget import parse_budget, spend_between, budget_status, budget_line
 from twlib.dates import date_range, period_range
 from twlib.fmt import fmt, money, nice, when
@@ -13,11 +13,32 @@ from twlib.trend import daily_totals, trend_lines
 def arg(flag, default=None):
     return sys.argv[sys.argv.index(flag) + 1] if flag in sys.argv else default
 
+def export(frag, since, until):
+    """--export html [PATH]: write the static dashboard and say where it went."""
+    i = sys.argv.index("--export")
+    rest = sys.argv[i + 1:i + 3]
+    if not rest or rest[0] != "html": sys.exit("tokenwatch: --export html [PATH]")
+    path = rest[1] if len(rest) > 1 and not rest[1].startswith("--") else None
+    if path is None:
+        path = os.path.join(os.getcwd(), "tokenwatch-dashboard.html")
+        here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if os.path.commonpath([here, os.path.abspath(path)]) == here:
+            sys.exit("tokenwatch: not writing the dashboard inside the tokenwatch checkout; pass a PATH elsewhere")
+    try: budget = parse_budget(sys.argv)
+    except (ValueError, IndexError):
+        sys.exit("tokenwatch: --budget needs a positive amount (e.g. --budget 20 --period week|day|month)")
+    try: data = dashboard.collect(frag, since, until, budget)
+    except ValueError: sys.exit("tokenwatch: --since is after --until")
+    try: dashboard.write_dashboard(path, data)
+    except OSError as e: sys.exit("tokenwatch: cannot write %s: %s" % (path, e.strerror))
+    print(f"🤖 dashboard written to {path}\n   it contains your project names; don't share it publicly")
+
 def main():
     frag, show = arg("--project"), int(arg("--sessions", 5))
     try: since, until = date_range(sys.argv)
     except (ValueError, IndexError):
         sys.exit("tokenwatch: --since/--until need a date like 2026-10-01")
+    if "--export" in sys.argv: return export(frag, since, until)
     rows = []
     for pdir in sorted(glob.glob(os.path.join(config.PROJECTS, "*"))):
         if not os.path.isdir(pdir): continue
