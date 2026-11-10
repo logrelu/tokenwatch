@@ -109,6 +109,16 @@ for spreadsheets, dashboards or scripts:
 python3 tokenwatch.py --json --sessions 3 | jq '.projects[].cost'
 ```
 
+Limit the report to a time window (by the day each session started):
+
+```
+python3 tokenwatch.py --today
+python3 tokenwatch.py --week                      # the last 7 days
+python3 tokenwatch.py --since 2026-10-01 --until 2026-10-31
+```
+
+Works together with `--project` and `--json`.
+
 Projects are listed most expensive first. Each starts with its totals and the
 project-wide suggestions, then its 5 most recent sessions (`--sessions 20` for more)
 in the format shown in the example.

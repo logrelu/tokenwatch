@@ -3,10 +3,11 @@
 
 Everything is local: ~/.claude/projects/**/*.jsonl never leaves this machine.
 Run: python3 tokenwatch.py [--project <name-fragment>] [--sessions <how many per project>] [--json]
+     [--today | --week | --since YYYY-MM-DD [--until YYYY-MM-DD]]
 """
 import json, glob, os, re, sys
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, date, timedelta
 
 HOME = os.path.expanduser("~")
 PROJECTS = os.path.join(HOME, ".claude", "projects")
@@ -229,8 +230,29 @@ def session_tips(s):
                    f"≈{money(s['as_cheaper'])}: /model sonnet for routine work.")
     return out
 
-def scan_project(pdir):
+def session_date(start):
+    """Local calendar date a session started on, or None if the timestamp is unreadable."""
+    try: return datetime.fromisoformat(start.replace("Z", "+00:00")).astimezone().date()
+    except Exception: return None
+
+def date_range(argv, today=None):
+    """(since, until) dates from --since/--until/--today/--week, either may be None (open-ended).
+    Raises ValueError on a bad date."""
+    today = today or date.today()
+    def val(flag):
+        return date.fromisoformat(argv[argv.index(flag) + 1]) if flag in argv else None
+    since, until = val("--since"), val("--until")
+    if "--today" in argv: since = until = today
+    if "--week" in argv: since, until = today - timedelta(days=6), today
+    return since, until
+
+def scan_project(pdir, since=None, until=None):
     sessions = [scan_session(f) for f in sorted(glob.glob(os.path.join(pdir, "*.jsonl")))]
+    if since or until:
+        def inside(x):
+            d = session_date(x["start"])
+            return d is not None and (not since or d >= since) and (not until or d <= until)
+        sessions = [x for x in sessions if inside(x)]
     stats = {k: sum(s["tokens"][k] for s in sessions) for k in KINDS}
     mcp = defaultdict(int)
     for s in sessions:
@@ -284,12 +306,15 @@ def arg(flag, default=None):
 
 def main():
     frag, show = arg("--project"), int(arg("--sessions", 5))
+    try: since, until = date_range(sys.argv)
+    except (ValueError, IndexError):
+        sys.exit("tokenwatch: --since/--until need a date like 2026-10-01")
     rows = []
     for pdir in sorted(glob.glob(os.path.join(PROJECTS, "*"))):
         if not os.path.isdir(pdir): continue
         name = os.path.basename(pdir).replace("-Users-" + os.path.basename(HOME) + "-", "~/").replace("-", "/")
         if frag and frag.lower() not in name.lower(): continue
-        p = scan_project(pdir)
+        p = scan_project(pdir, since, until)
         if p["turns"] == 0: continue
         rows.append((p["cost"], name, p))
     rows.sort(key=lambda r: -r[0])
