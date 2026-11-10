@@ -1,7 +1,8 @@
 """Spending budget: parsing, spend in a period, status level and the printed line."""
-import os
-from twlib import prefs
-from twlib.dates import PERIODS
+import glob, json, os, time
+from datetime import datetime, timedelta
+from twlib import config, prefs
+from twlib.dates import PERIODS, period_range
 from twlib.fmt import money
 
 def parse_budget(argv, env=None, saved=None):
@@ -38,3 +39,51 @@ def budget_line(b, width=10):
     mood = {"over": "🙀 over budget", "warn": "😿 nearly there", "ok": "😺 on track"}[b["level"]]
     where = {"day": "today", "week": "last 7 days", "month": "this month"}[b["period"]]
     return f"💰 {where}: {money(b['spent'])} of {money(b['budget'])} budget ({b['used']:.0%}) {bar} {mood}"
+
+
+LIVE_MAX_AGE = 300      # seconds the statusline reuses a computed budget total
+
+
+def _changed_since(day):
+    """Transcripts modified since the day before `day` (older files can't hold replies in the period)."""
+    cutoff = (datetime.combine(day, datetime.min.time()) - timedelta(days=1)).timestamp()
+    out = []
+    for f in glob.glob(os.path.join(config.PROJECTS, "*", "*.jsonl")):
+        try:
+            if os.path.getmtime(f) >= cutoff: out.append(f)
+        except OSError: pass
+    return out
+
+
+def live_budget(now=None, today=None, max_age=LIVE_MAX_AGE):
+    """budget_status() for the saved/env budget, for the statusline: cached in config.OUT_DIR and recomputed
+    at most every `max_age` seconds. None when no budget is set. Never raises."""
+    from twlib.scan import scan_session          # here, so importing budget stays light for the CLI
+    try:
+        b = parse_budget([])
+        if not b: return None
+        now = time.time() if now is None else now
+        lo, hi = period_range(b[1], today)
+        key = "%s|%s|%s" % (prefs.budget_text(*b), lo, hi)
+        cache = os.path.join(config.private_dir(), "budget.json")
+        try:
+            with open(cache, encoding="utf-8") as fh: c = json.load(fh)
+            if c.get("key") == key and 0 <= now - c.get("t", 0) < max_age:
+                return budget_status(c["spent"], *b)
+        except (OSError, ValueError, KeyError, TypeError): pass
+        spent = spend_between([scan_session(f) for f in _changed_since(lo)], lo, hi)
+        tmp = cache + ".%d" % os.getpid()
+        with open(tmp, "w", encoding="utf-8") as fh: json.dump({"key": key, "t": now, "spent": spent}, fh)
+        os.replace(tmp, cache)
+        return budget_status(spent, *b)
+    except Exception:
+        return None
+
+
+def budget_segment(b, color=True, utf=True):
+    """Short statusline text: "💰 64% of $25/week"; yellow from 80%, red when over (with a word, not colour alone)."""
+    if not b: return ""
+    text = "%s %s of %s/%s" % ("💰" if utf else "budget", "{:.0%}".format(b["used"]), "$%g" % b["budget"], b["period"])
+    text += {"ok": "", "warn": " nearly there", "over": " OVER"}[b["level"]]
+    code = {"ok": "", "warn": "33", "over": "31"}[b["level"]]
+    return "\033[%sm%s\033[0m" % (code, text) if color and code else text
