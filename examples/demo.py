@@ -18,13 +18,13 @@ os.environ["TZ"] = "UTC"
 time.tzset()
 
 import tokenwatch as tw
-from twlib import cli, config, dashboard, scan
+from twlib import cli, config, dashboard, recap, scan
 
 README = os.path.join(ROOT, "README.md")
 SAMPLE = os.path.join(ROOT, "examples", "dashboard-sample.html")
 WEATHER = os.path.join(ROOT, "examples", "dashboard-sample-weather.html")
 OPUS, SONNET = "claude-opus-5-5", "claude-sonnet-5-5"
-BLOCKS = ("session", "report", "daily", "budget")
+BLOCKS = ("session", "report", "daily", "budget", "recap")
 
 
 def _ts(t):
@@ -95,11 +95,13 @@ def build(root):
 def run(*args):
     """Run the real CLI against the fake projects and return its stdout."""
     root = tempfile.mkdtemp()
-    saved = (config.PROJECTS, scan.HOME, cli.period_range, sys.argv, config.PREFS, os.environ.pop("TOKENWATCH_BUDGET", None))
+    saved = (config.PROJECTS, scan.HOME, cli.period_range, sys.argv, config.PREFS, os.environ.pop("TOKENWATCH_BUDGET", None),
+             recap.today_fn)
     try:
         build(root)
         config.PROJECTS, scan.HOME = root, "/Users/demo"
         config.PREFS = os.path.join(root, "no-saved-settings.json")   # your saved budget/theme never leak in
+        recap.today_fn = lambda: date(2026, 10, 5)                     # a Monday: "last week" holds the demo data
         cli.period_range = lambda period, today=None: (date(2026, 10, 1), date(2026, 10, 7))
         sys.argv = ["tokenwatch.py", *args]
         buf = io.StringIO()
@@ -107,7 +109,7 @@ def run(*args):
             tw.main()
         return buf.getvalue()
     finally:
-        config.PROJECTS, scan.HOME, cli.period_range, sys.argv, config.PREFS, env = saved
+        config.PROJECTS, scan.HOME, cli.period_range, sys.argv, config.PREFS, env, recap.today_fn = saved
         if env is not None: os.environ["TOKENWATCH_BUDGET"] = env
         shutil.rmtree(root)
 
@@ -137,7 +139,8 @@ def blocks():
     daily = run("--daily", "--since", "2026-10-01", "--until", "2026-10-07").strip("\n")
     daily = "\n".join(daily.split("\n")[:-2])         # drop the totals footer; the table is the example
     budget = [l for l in run("--budget", "25", "--period", "week", "--sessions", "0").split("\n") if l.startswith("💰")][0]
-    return {"session": "\n".join(session).strip("\n"), "report": report, "daily": daily, "budget": budget}
+    return {"session": "\n".join(session).strip("\n"), "report": report, "daily": daily, "budget": budget,
+            "recap": run("--recap").strip("\n")}
 
 
 def render(text, data):

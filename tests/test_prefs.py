@@ -57,13 +57,14 @@ class Store(PrefsCase):
         self.assertEqual(prefs.describe({"budget": "2.5/day", "theme": "weather"}), "budget $2.5 per day, theme weather")
 
     def test_default_location_is_outside_claude(self):
-        import importlib, twlib.config as c
-        fresh = importlib.reload(c)
+        import importlib
+        before = dict(vars(config))              # reload resets every path; put them all back afterwards
         try:
+            fresh = importlib.reload(config)
             self.assertTrue(fresh.PREFS.endswith(os.path.join("tokenwatch", "config.json")))
             self.assertNotIn(".claude", fresh.PREFS)
         finally:
-            fresh.PREFS = config.PREFS = os.path.join(self.dir, "tokenwatch", "config.json")
+            vars(config).update(before)
 
 
 class BudgetOrder(PrefsCase):

@@ -21,12 +21,13 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/usage.py` | `new_usage`, `context_of`, `plugin_hook`: reading one transcript line. |
 | `twlib/tips.py` | `top_tip`, `session_tips`, `advise`: the plain-English suggestions. |
 | `twlib/live.py` | Live-session state shared by `statusline.py` and `pet.py`. |
-| `twlib/config.py` | `HOME`, `PROJECTS`, `SETTINGS` (read-only), `PREFS`, `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
+| `twlib/config.py` | `HOME`, `PROJECTS`, `SETTINGS` (read-only), `PREFS`, `STATE` (recap bookkeeping), `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
 | `twlib/dates.py` | `session_date`, `date_range`, `period_range`. |
 | `twlib/scan.py` | `scan_session`, `scan_project`, `project_name`: transcripts to numbers. |
 | `twlib/budget.py` | Budget parsing, status and the printed line. Order: `--budget` flag, then `TOKENWATCH_BUDGET`, then the saved budget. `live_budget()` is the statusline's cached version (recomputed at most every 5 minutes, only rescanning transcripts changed since the period began; cache in `config.OUT_DIR`) and `budget_segment()` its short coloured text. |
-| `twlib/prefs.py` | Saved settings (`budget`, `theme`) in `config.PREFS` (`~/.config/tokenwatch/config.json`). Validated on save and on load; a bad file counts as empty. The only file tokenwatch writes besides dashboards. Tests redirect `config.PREFS` in `tests/__init__.py`. |
+| `twlib/prefs.py` | Saved settings (`budget`, `theme`) in `config.PREFS` (`~/.config/tokenwatch/config.json`). Validated on save and on load; a bad file counts as empty. The only file tokenwatch writes besides dashboards. Tests redirect `config.PREFS` and `config.STATE` in `tests/__init__.py`. |
 | `twlib/trend.py` | Daily totals, sparkline, trend table. |
+| `twlib/recap.py` | The weekly recap line: last Monday–Sunday vs the week before, priciest project. `due()`/`mark_shown()` keep it to once per week via `config.STATE`; the greeting prints it. |
 | `twlib/report.py` | JSON-serialisable session/project summaries. |
 | `examples/demo.py` | Builds FAKE transcripts and renders the README examples with the real CLI. `--update-readme` rewrites the `<!-- demo:NAME -->` blocks, `--dashboard` rewrites `examples/dashboard-sample.html`, `--check` (run in the tests) verifies both. |
 | `docs/dashboard.png` | Screenshot of `examples/dashboard-sample.html` (made-up data only), shown in the README. Retake it after visible changes to `twlib/dashboard.py`; check it shows no real names, tabs or paths before committing. |
@@ -76,7 +77,7 @@ CLI against a temp folder. Tests must never read real transcripts: always go thr
 
 ## README examples
 
-Never hand-write output samples in the README. The `session`, `report`, `daily` and `budget` blocks are generated
+Never hand-write output samples in the README. The `session`, `report`, `daily`, `budget` and `recap` blocks are generated
 from invented data: after changing output formats, run `python3 examples/demo.py --update-readme` and commit the
 result (`tests/test_examples.py` fails otherwise). Never paste real transcripts or real output into docs. The sample dashboard is generated the same way
 (`python3 examples/demo.py --dashboard`); regenerate it after any change to `twlib/dashboard.py`.

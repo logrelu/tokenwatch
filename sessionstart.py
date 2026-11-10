@@ -5,7 +5,7 @@ Optional: TOKENWATCH_BUDGET=20/week adds one budget line (nothing extra is print
 import json, os, sys, glob
 from tokenwatch import (fmt, money, scan_session, session_tips, parse_budget, period_range,
                         spend_between, budget_status, budget_line, PROJECTS)
-from twlib import config, install
+from twlib import config, install, recap
 
 
 def last_session_line(meta):
@@ -39,7 +39,7 @@ def setup_reminder():
 if __name__ == "__main__":
     try: meta = json.load(sys.stdin)
     except Exception: meta = {}
-    for part in (last_session_line, budget_check, setup_reminder):
+    for part in (last_session_line, budget_check, recap.greeting_line, setup_reminder):
         try:
             line = part(meta) if part is last_session_line else part()
         except Exception:

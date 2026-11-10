@@ -1,4 +1,4 @@
-"""Saved settings: a budget and a dashboard theme, kept in config.PREFS so you set them once.
+"""Saved settings: a budget, a dashboard theme and the weekly recap switch, kept in config.PREFS so you set them once.
 
 The file is tiny JSON, e.g. {"budget": "25/week", "theme": "weather"}. Values are checked when saved and
 again when read, so a hand-edited or broken file is treated as empty instead of breaking a report.
@@ -28,6 +28,7 @@ def valid(key, value):
         try: parse_budget_text(value); return True
         except ValueError: return False
     if key == "theme": return value in THEMES
+    if key == "recap": return value == "off"          # on is the default, so only "off" is ever stored
     return False
 
 
@@ -72,4 +73,5 @@ def describe(data):
         amount, period = parse_budget_text(data["budget"])
         parts.append("budget $%g per %s" % (amount, period))
     if "theme" in data: parts.append("theme " + data["theme"])
+    if data.get("recap") == "off": parts.append("weekly recap off")
     return ", ".join(parts)
