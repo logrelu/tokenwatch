@@ -28,6 +28,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/trend.py` | Daily totals, sparkline, trend table. |
 | `twlib/report.py` | JSON-serialisable session/project summaries. |
 | `twlib/cli.py` | Argument parsing and report printing (`main`). |
+| `twlib/dashboard.py` | `--export html`: `collect()` (data dict) and `render_html()` (inline CSS/SVG page, tooltip-only script). Escape every data string with `esc()`. |
 | `statusline.py` | Claude Code statusline. Tails the transcript incrementally; state cached in `/tmp/tokenwatch-*.json`. |
 | `sessionstart.py` | SessionStart hook: one line about the previous session. |
 | `pet.py` | Long-running animated cat for a second terminal. |
