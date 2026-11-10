@@ -24,7 +24,7 @@ and reports cost, tokens burnt and plain-English suggestions. See README.md for 
 | `twlib/config.py` | `HOME`, `PROJECTS`, `SETTINGS` (read-only), `PREFS`, `OUT_DIR` (private temp folder for `--open`). Read as `config.X` so tests can redirect them. |
 | `twlib/dates.py` | `session_date`, `date_range`, `period_range`. |
 | `twlib/scan.py` | `scan_session`, `scan_project`, `project_name`: transcripts to numbers. |
-| `twlib/budget.py` | Budget parsing, status and the printed line. Order: `--budget` flag, then `TOKENWATCH_BUDGET`, then the saved budget. |
+| `twlib/budget.py` | Budget parsing, status and the printed line. Order: `--budget` flag, then `TOKENWATCH_BUDGET`, then the saved budget. `live_budget()` is the statusline's cached version (recomputed at most every 5 minutes, only rescanning transcripts changed since the period began; cache in `config.OUT_DIR`) and `budget_segment()` its short coloured text. |
 | `twlib/prefs.py` | Saved settings (`budget`, `theme`) in `config.PREFS` (`~/.config/tokenwatch/config.json`). Validated on save and on load; a bad file counts as empty. The only file tokenwatch writes besides dashboards. Tests redirect `config.PREFS` in `tests/__init__.py`. |
 | `twlib/trend.py` | Daily totals, sparkline, trend table. |
 | `twlib/report.py` | JSON-serialisable session/project summaries. |
