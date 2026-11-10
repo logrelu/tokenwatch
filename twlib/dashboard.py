@@ -258,7 +258,8 @@ el.addEventListener('focus',function(){show(null,el)});el.addEventListener('blur
 """
 
 def _json_for_script(data):
-    return json.dumps(data, ensure_ascii=False).replace("</", "<\\/").replace("<!--", "<\\!--")
+    """JSON that cannot break out of its <script> tag: every '<' becomes \\u003c (so no '</script', '<!--')."""
+    return json.dumps(data, ensure_ascii=False).replace("<", "\\u003c")
 
 def _filter_text(f):
     bits = [f["project"] and "project contains \"%s\"" % f["project"],
